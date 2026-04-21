@@ -6,6 +6,22 @@ function sortByT(kfs: TimeKeyframe<number>[]): TimeKeyframe<number>[] {
 }
 
 /**
+ * Keyframes from multiple `PropertyTrack`s with the same `target`, combined and deduped by `t`
+ * (last wins at identical times).
+ */
+export function mergeKeyframesByTime(frames: TimeKeyframe<number>[]): TimeKeyframe<number>[] {
+  if (frames.length === 0) return [];
+  const sorted = sortByT(frames);
+  const atT = new Map<number, TimeKeyframe<number>>();
+  for (const kf of sorted) {
+    atT.set(kf.t, kf);
+  }
+  return [...atT.keys()]
+    .sort((a, b) => a - b)
+    .map((t) => atT.get(t)!);
+}
+
+/**
  * Interpolate a numeric property at time t from a track. Easing is taken from the
  * *leading* keyframe of the active segment.
  */

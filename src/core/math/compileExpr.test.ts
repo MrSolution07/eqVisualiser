@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { compileFunctionPlot } from "./compileExpr";
 import { evaluateAtTime } from "../../engine/evaluateProject";
-import { createDefaultProject, projectWithTimeline } from "../schema";
-import { tracksForShots } from "../../director/shots";
+import { createDefaultProject } from "../schema";
 
 describe("compile", () => {
   it("evaluates a safe function", () => {
@@ -30,12 +29,10 @@ describe("compile", () => {
 });
 
 describe("preview export parity (same t)", () => {
-  it("same camera keys at t=4", () => {
+  it("is deterministic for the same project and t", () => {
     const p0 = createDefaultProject();
-    const tr = tracksForShots(p0, [{ kind: "intro", at: 0, duration: 4 }]);
-    const p1 = projectWithTimeline(p0, { ...p0.timeline, tracks: tr });
-    const a = evaluateAtTime(p1, 4, new Map());
-    const b = evaluateAtTime(p1, 4, new Map());
-    expect(a.cameras["main-cam"]).toEqual(b.cameras["main-cam"]);
+    const a = evaluateAtTime(p0, 4, new Map());
+    const b = evaluateAtTime(p0, 4, new Map());
+    expect(a).toEqual(b);
   });
 });

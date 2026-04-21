@@ -130,20 +130,3 @@
   height: 100%;
   display: block;
 }
-
-.katexHost {
-  position: absolute;
-  pointer-events: none;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  overflow: hidden;
-}
-
-.katexItem {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  max-width: 88%;
-}

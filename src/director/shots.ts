@@ -12,7 +12,6 @@ export interface ShotSpec {
   equationId?: string;
 }
 
-const easeIn: [number, number, number, number] = [0.42, 0, 1, 1];
 const easeOut: [number, number, number, number] = [0, 0, 0.58, 1];
 const easeIO: [number, number, number, number] = [0.45, 0, 0.55, 1];
 
@@ -23,33 +22,15 @@ export function tracksForShots(project: ProjectFileV1, shots: ShotSpec[]): Prope
   const tracks: PropertyTrack[] = [];
   const findCam = project.scene.find((s) => s.type === "camera2d");
   const findPlot = project.scene.find((s) => s.type === "plot2d");
-  const findEq = project.scene.find((s) => s.type === "equation");
   const cameraId = findCam?.id ?? "main-cam";
   const plotId = findPlot?.id ?? "main-plot";
-  const eqId = findEq?.id ?? "eq-title";
+
+  const defaultHw = findCam && findCam.type === "camera2d" ? findCam.initial.halfWidth : 8;
+  const wideHw = findCam && findCam.type === "camera2d" ? findCam.initial.halfWidth * 1.45 : 12;
 
   for (const s of shots) {
     if (s.kind === "intro") {
-      const t0 = s.at;
-      const t1 = s.at + s.duration * 0.35;
-      tracks.push({
-        id: `eq-${s.at}-op`,
-        target: `${s.equationId ?? eqId}.opacity`,
-        keyframes: [
-          { t: t0, value: 0, easing: "linear" },
-          { t: t1, value: 1, easing: easeOut },
-        ],
-      });
-      const cam0 = t0;
-      const cam1 = s.at + s.duration;
-      tracks.push({
-        id: `cam-${s.at}-hw`,
-        target: `${s.cameraId ?? cameraId}.halfWidth`,
-        keyframes: [
-          { t: cam0, value: findCam && findCam.type === "camera2d" ? findCam.initial.halfWidth * 1.45 : 12, easing: "linear" },
-          { t: cam1, value: findCam && findCam.type === "camera2d" ? findCam.initial.halfWidth : 8, easing: easeIO },
-        ],
-      });
+      // Equation/camera title beats are unused when the overlay is off; keep the kind for future use.
     } else if (s.kind === "reveal") {
       const t0 = s.at;
       const t1 = s.at + s.duration;
@@ -59,6 +40,14 @@ export function tracksForShots(project: ProjectFileV1, shots: ShotSpec[]): Prope
         keyframes: [
           { t: t0, value: 0, easing: "linear" },
           { t: t1, value: 1, easing: easeIO },
+        ],
+      });
+      tracks.push({
+        id: `cam-${s.at}-reveal-hw`,
+        target: `${s.cameraId ?? cameraId}.halfWidth`,
+        keyframes: [
+          { t: t0, value: wideHw, easing: "linear" },
+          { t: t1, value: defaultHw, easing: "linear" },
         ],
       });
     } else if (s.kind === "connect") {
@@ -83,17 +72,8 @@ export function tracksForShots(project: ProjectFileV1, shots: ShotSpec[]): Prope
             { t: t1, value: cy0 + 0.15, easing: easeOut },
           ],
         },
-        {
-          id: `cam-${s.at}-z`,
-          target: `${s.cameraId ?? cameraId}.halfWidth`,
-          keyframes: [
-            { t: t0, value: findCam && findCam.type === "camera2d" ? findCam.initial.halfWidth : 8, easing: "linear" },
-            { t: t1, value: (findCam && findCam.type === "camera2d" ? findCam.initial.halfWidth : 8) * 0.75, easing: easeIn },
-          ],
-        },
       );
     } else {
-      // outro: hold title, soften plot
       const t0 = s.at;
       const t1 = s.at + s.duration;
       tracks.push(
@@ -106,11 +86,11 @@ export function tracksForShots(project: ProjectFileV1, shots: ShotSpec[]): Prope
           ],
         },
         {
-          id: `eq-${s.at}-end`,
-          target: `${s.equationId ?? eqId}.y`,
+          id: `cam-${s.at}-outro-hw`,
+          target: `${s.cameraId ?? cameraId}.halfWidth`,
           keyframes: [
-            { t: t0, value: findEq && findEq.type === "equation" ? findEq.position.y : 0.35, easing: "linear" },
-            { t: t1, value: 0.42, easing: easeIO },
+            { t: t0, value: defaultHw, easing: "linear" },
+            { t: t1, value: defaultHw * 1.2, easing: easeOut },
           ],
         },
       );
@@ -120,14 +100,13 @@ export function tracksForShots(project: ProjectFileV1, shots: ShotSpec[]): Prope
 }
 
 /**
- * Preset used by the default demo: four beats in ~18s
+ * Preset: draw + zoom-in, pan, outro with zoom-out + line soften (~18s)
  */
 export function defaultStoryboard(project: ProjectFileV1): ProjectFileV1 {
   const shots: ShotSpec[] = [
-    { kind: "intro", at: 0, duration: 4 },
-    { kind: "reveal", at: 3.2, duration: 6 },
-    { kind: "connect", at: 8.5, duration: 5 },
-    { kind: "outro", at: 13, duration: 4 },
+    { kind: "reveal", at: 0, duration: 6 },
+    { kind: "connect", at: 6, duration: 5 },
+    { kind: "outro", at: 11, duration: 7 },
   ];
   const tr = tracksForShots(project, shots);
   return {

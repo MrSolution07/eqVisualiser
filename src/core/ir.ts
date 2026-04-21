@@ -33,7 +33,7 @@ export interface TimelineV1 {
   duration: number;
   /** Composition frame rate (preview + export) */
   fps: number;
-  /** Parallel tracks; same target can appear once (last wins by merge rules) or we merge by time — we use one track per (target+property) */
+  /** Same `PropertyTrack.target` is merged: keyframes are union-sorted, duplicate `t` uses last keyframe. */
   tracks: PropertyTrack[];
 }
 

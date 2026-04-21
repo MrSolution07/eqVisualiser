@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode, type ReactElement } from "react";
-import katex from "katex";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 import { useStore } from "./store";
 import { Plot2DWebGL } from "./render/webgl2/Plot2DWebGL";
 import { evaluateAtTime } from "./engine/evaluateProject";
@@ -166,7 +165,7 @@ export function App(): ReactElement {
         <aside className="sidebar">
           <h2>Expression</h2>
           <div className="field">
-            <label htmlFor="expr">f(x) — mathjs syntax</label>
+            <label htmlFor="expr">f(x), Please use only mathjs syntax. Just try to search on Google and have fun or just prompt AI to modify an equation you know </label>
             <textarea
               id="expr"
               value={expr}
@@ -193,43 +192,9 @@ export function App(): ReactElement {
         <div className="stageWrap">
           <div className="canvasHost" ref={hostRef}>
             <canvas ref={canvasRef} />
-            <EquationOverlays project={project} />
           </div>
         </div>
       </div>
     </div>
   );
-}
-
-function EquationOverlays({ project }: { project: import("./core/ir").ProjectFileV1 }): ReactElement {
-  const t = useStore((s) => s.t);
-  const cache = useRef(new Map<string, { hash: string; poly: Polyline2D }>());
-  const st = evaluateAtTime(project, t, cache.current);
-  const out: ReactNode[] = [];
-  for (const n of project.scene) {
-    if (n.type !== "equation") continue;
-    const r = st.equations[n.id];
-    if (!r) continue;
-    const left = 50 + r.position.x * 42;
-    const top = 50 - r.position.y * 42;
-    let html = "";
-    try {
-      html = katex.renderToString(r.latex, { displayMode: true, throwOnError: false });
-    } catch {
-      html = r.latex;
-    }
-    out.push(
-      <div
-        key={n.id}
-        className="katexItem"
-        style={{
-          left: `${left}%`,
-          top: `${top}%`,
-          opacity: r.opacity,
-        }}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />,
-    );
-  }
-  return <div className="katexHost">{out}</div>;
 }

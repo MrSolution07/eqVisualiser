@@ -1,6 +1,6 @@
 import type { ProjectFileV1, SceneNode } from "../core/ir";
 import type { PropertyTrack } from "../core/ir";
-import { valueAtTime } from "./keyframes";
+import { mergeKeyframesByTime, valueAtTime } from "./keyframes";
 import { samplePlot } from "../core/math/samplePlot";
 import type { Polyline2D } from "../core/math/samplePlot";
 
@@ -39,9 +39,16 @@ export interface RenderStateV1 {
 }
 
 function collectTracks(timeline: ProjectFileV1["timeline"]): Map<string, PropertyTrack> {
-  const m = new Map<string, PropertyTrack>();
+  const groups = new Map<string, PropertyTrack[]>();
   for (const tr of timeline.tracks) {
-    m.set(tr.target, tr);
+    const list = groups.get(tr.target) ?? [];
+    list.push(tr);
+    groups.set(tr.target, list);
+  }
+  const m = new Map<string, PropertyTrack>();
+  for (const [target, list] of groups) {
+    const keyframes = mergeKeyframesByTime(list.flatMap((tr) => tr.keyframes));
+    m.set(target, { id: `merged:${target}`, target, keyframes });
   }
   return m;
 }
