@@ -1,0 +1,21 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: #050508;
+  color: #e8eaef;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
