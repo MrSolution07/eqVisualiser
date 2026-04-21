@@ -15,6 +15,18 @@ describe("compile", () => {
     const f = c.compile();
     expect(f(0)).toBeCloseTo(0, 5);
   });
+  it("accepts LaTeX \\cos, y= prefix, and t as alias for x", () => {
+    const expression = String.raw`y = 13 \cos(t) - 5 \cos(2t) - 2 \cos(3t) - \cos(4t)`;
+    const c = compileFunctionPlot({
+      kind: "function",
+      expression,
+      xMin: 0,
+      xMax: 1,
+      samples: 8,
+    });
+    const f = c.compile();
+    expect(f(0)).toBeCloseTo(13 - 5 - 2 - 1, 5);
+  });
   it("rejects unknown symbols", () => {
     expect(() =>
       compileFunctionPlot({

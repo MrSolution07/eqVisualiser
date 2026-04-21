@@ -22,25 +22,48 @@ function buildCumLen(points: Float32Array): { cumLen: Float32Array; totalLen: nu
   return { cumLen, totalLen: acc };
 }
 
+function fallbackPolyline(xMin: number, xMax: number): Polyline2D {
+  const pts = new Float32Array([xMin, 0, xMax, 0]);
+  const { cumLen, totalLen } = buildCumLen(pts);
+  return { points: pts, cumLen, totalLen };
+}
+
 /**
  * Sample y=f(x) on [xMin,xMax]; drops non-finite y so tan spikes do not poison the strip.
+ * On compile/parse errors, returns a short horizontal segment instead of throwing (keeps UI alive).
  */
 export function sampleFunctionPlotInRange(def: FunctionPlotDef, xMin: number, xMax: number, samples: number): Polyline2D {
-  const { compile } = compileFunctionPlot(def);
-  const f = compile();
+  let compileFn: () => (x: number) => number;
+  try {
+    compileFn = compileFunctionPlot(def).compile;
+  } catch {
+    return fallbackPolyline(xMin, xMax);
+  }
+  const f = compileFn();
   const n = Math.max(16, samples);
   const buf: number[] = [];
   for (let i = 0; i < n; i++) {
     const t = n === 1 ? 0 : i / (n - 1);
     const x = xMin + t * (xMax - xMin);
-    const y = f(x);
+    let y: number;
+    try {
+      y = f(x);
+    } catch {
+      return fallbackPolyline(xMin, xMax);
+    }
     if (Number.isFinite(x) && Number.isFinite(y)) {
       buf.push(x, y);
     }
   }
   if (buf.length < 4) {
-    const y0 = f(xMin);
-    const y1 = f(xMax);
+    let y0: number;
+    let y1: number;
+    try {
+      y0 = f(xMin);
+      y1 = f(xMax);
+    } catch {
+      return fallbackPolyline(xMin, xMax);
+    }
     const a = Number.isFinite(y0) ? y0 : 0;
     const b = Number.isFinite(y1) ? y1 : a;
     buf.length = 0;

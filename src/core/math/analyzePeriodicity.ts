@@ -6,6 +6,7 @@
 
 import type { MathNode, OperatorNode, FunctionNode, SymbolNode, ParenthesisNode } from "mathjs";
 import { math } from "./compileExpr";
+import { normalizeFunctionPlotExpression } from "./normalizeExpression";
 
 const TRIG_2PI = new Set(["sin", "cos", "sec", "csc"]);
 const TRIG_PI = new Set(["tan", "cot"]);
@@ -42,7 +43,7 @@ export function parseAffineInX(node: MathNode): Affine | null {
   const n = unwrap(node);
   if (n.type === "SymbolNode") {
     const name = (n as SymbolNode).name;
-    if (name === "x") return { a: 1, b: 0 };
+    if (name === "x" || name === "t") return { a: 1, b: 0 };
     return null;
   }
   if (n.type === "ConstantNode") {
@@ -196,7 +197,7 @@ function fundamentalPeriod(periods: number[]): number | null {
 export function analyzePeriodicity(expression: string): PeriodicAnalysis {
   let root: MathNode;
   try {
-    root = math.parse(expression);
+    root = math.parse(normalizeFunctionPlotExpression(expression));
   } catch {
     return { kind: "unknown" };
   }

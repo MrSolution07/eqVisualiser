@@ -13,6 +13,12 @@ describe("parseAffineInX", () => {
 });
 
 describe("analyzePeriodicity", () => {
+  it("detects cos sums in t after LaTeX normalize", () => {
+    const raw = String.raw`13 \cos(t) - 5 \cos(2t) - 2 \cos(3t) - \cos(4t)`;
+    const a = analyzePeriodicity(raw);
+    expect(a.kind).toBe("periodic");
+    if (a.kind === "periodic") expect(a.period).toBeCloseTo(2 * Math.PI, 5);
+  });
   it("detects sin(ax+b)", () => {
     const a = analyzePeriodicity("sin(2*x+1)");
     expect(a.kind).toBe("periodic");

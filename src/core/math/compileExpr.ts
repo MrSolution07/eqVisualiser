@@ -1,5 +1,6 @@
 import { create, all, type MathNode, type FunctionNode, type SymbolNode } from "mathjs";
 import type { ParametricPlotDef, FunctionPlotDef } from "../ir";
+import { normalizeFunctionPlotExpression } from "./normalizeExpression";
 
 const math = create(all);
 
@@ -50,14 +51,18 @@ function getFunctionName(n: FunctionNode): string | undefined {
   return undefined;
 }
 
+/** Independent variable for function plots: `x` is canonical; `t` is allowed as an alias (many formulas use t). */
+const FUNCTION_PLOT_VARS = new Set(["x", "t"]);
+
 export function compileFunctionPlot(def: FunctionPlotDef): { compile: () => (x: number) => number; raw: string } {
-  const node = math.parse(def.expression);
-  assertSafeNode(node, new Set(["x"]));
-  const c = node.compile() as { evaluate: (s: { x: number }) => unknown };
+  const normalized = normalizeFunctionPlotExpression(def.expression);
+  const node = math.parse(normalized);
+  assertSafeNode(node, FUNCTION_PLOT_VARS);
+  const c = node.compile() as { evaluate: (s: Record<string, number>) => unknown };
   return {
     raw: def.expression,
     compile: () => (x: number) => {
-      const v = c.evaluate({ x });
+      const v = c.evaluate({ x, t: x });
       if (typeof v === "number" && Number.isFinite(v)) return v;
       if (v && typeof v === "object" && "re" in v) return Number((v as { re: number; im: number }).re);
       return NaN;
