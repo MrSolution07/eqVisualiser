@@ -1,57 +1,16 @@
 import type { ProjectFileV1, SceneNode } from "../core/ir";
 import type { PropertyTrack } from "../core/ir";
-import { mergeKeyframesByTime, valueAtTime } from "./keyframes";
-import { samplePlot } from "../core/math/samplePlot";
+import { valueAtTime } from "./keyframes";
+import { samplePlot, sampleFunctionPlotInRange } from "../core/math/samplePlot";
 import type { Polyline2D } from "../core/math/samplePlot";
+import { analyzePeriodicity } from "../core/math/analyzePeriodicity";
+import { collectTracks } from "./timelineUtils";
+import { computeCameraEnvelope } from "./cameraEnvelope";
+import { computeTimelineUnionSampling, functionPlotSamplingKey } from "./plotSampling";
+import { resolveCameraWithFollow } from "./cameraFollow";
+import type { RenderStateV1, ResolvedCamera2D, ResolvedPlot2D, ResolvedEquation } from "./renderState";
 
-export interface ResolvedCamera2D {
-  id: string;
-  centerX: number;
-  centerY: number;
-  halfWidth: number;
-}
-
-export interface ResolvedPlot2D {
-  id: string;
-  cameraId: string;
-  /** 0-1 how much of the curve to draw (by arclength) */
-  draw: number;
-  lineWidth: number;
-  polyline: Polyline2D;
-  plotHash: string;
-}
-
-export interface ResolvedEquation {
-  id: string;
-  opacity: number;
-  position: { x: number; y: number };
-  fontSize: number;
-  latex: string;
-}
-
-export interface RenderStateV1 {
-  t: number;
-  duration: number;
-  style: ProjectFileV1["style"];
-  cameras: Record<string, ResolvedCamera2D>;
-  plots: Record<string, ResolvedPlot2D>;
-  equations: Record<string, ResolvedEquation>;
-}
-
-function collectTracks(timeline: ProjectFileV1["timeline"]): Map<string, PropertyTrack> {
-  const groups = new Map<string, PropertyTrack[]>();
-  for (const tr of timeline.tracks) {
-    const list = groups.get(tr.target) ?? [];
-    list.push(tr);
-    groups.set(tr.target, list);
-  }
-  const m = new Map<string, PropertyTrack>();
-  for (const [target, list] of groups) {
-    const keyframes = mergeKeyframesByTime(list.flatMap((tr) => tr.keyframes));
-    m.set(target, { id: `merged:${target}`, target, keyframes });
-  }
-  return m;
-}
+export type { RenderStateV1, ResolvedCamera2D, ResolvedPlot2D, ResolvedEquation } from "./renderState";
 
 function getNum(
   tracks: Map<string, PropertyTrack>,
@@ -80,27 +39,77 @@ function plotKey(plot: { kind: string } & Record<string, unknown>): string {
 
 /**
  * Pure: full render state for time t (clamped to [0, duration]).
- * When `plotCache` is provided, reuses polylines when the plot expression is unchanged.
+ * When `plotCache` is provided, reuses polylines when the plot sampling key is unchanged.
+ *
+ * Sampling uses **timeline-union** x-extent for function plots so `draw` (arclength) stays stable.
  */
 export function evaluateAtTime(project: ProjectFileV1, tIn: number, plotCache?: Map<string, { hash: string; poly: Polyline2D }>): RenderStateV1 {
   const duration = project.timeline.duration;
   const t = Math.max(0, Math.min(tIn, duration));
   const tracks = collectTracks(project.timeline);
-  const cameras: Record<string, ResolvedCamera2D> = {};
+  const periodicByExpr = new Map<string, ReturnType<typeof analyzePeriodicity>>();
+  const periodicCached = (expression: string) => {
+    let p = periodicByExpr.get(expression);
+    if (!p) {
+      p = analyzePeriodicity(expression);
+      periodicByExpr.set(expression, p);
+    }
+    return p;
+  };
+
+  const camerasBase: Record<string, ResolvedCamera2D> = {};
+  const envelopes: Record<string, ReturnType<typeof computeCameraEnvelope>> = {};
+
+  for (const node of project.scene) {
+    if (node.type === "camera2d") {
+      camerasBase[node.id] = getCamera(node, tracks, t);
+      envelopes[node.id] = computeCameraEnvelope(project, node.id, node.initial, duration);
+    }
+  }
+
   const plots: Record<string, ResolvedPlot2D> = {};
   const equations: Record<string, ResolvedEquation> = {};
 
   for (const node of project.scene) {
-    if (node.type === "camera2d") {
-      cameras[node.id] = getCamera(node, tracks, t);
-    } else if (node.type === "plot2d") {
-      const ph = plotKey(node.plot as unknown as { kind: string } & Record<string, unknown>);
-      const cached = plotCache?.get(node.id);
-      const poly = cached && cached.hash === ph ? cached.poly : samplePlot(node.plot);
-      if (plotCache) plotCache.set(node.id, { hash: ph, poly });
+    if (node.type === "plot2d") {
       const draw0 = node.initialDraw;
       const draw = getNum(tracks, `${node.id}.draw`, t, draw0);
       const lw = getNum(tracks, `${node.id}.lineWidth`, t, node.lineWidth);
+
+      let poly: Polyline2D;
+      let ph: string;
+
+      if (node.plot.kind === "function") {
+        let env = envelopes[node.cameraId];
+        if (!env) {
+          const firstCam = project.scene.find((s) => s.type === "camera2d");
+          if (firstCam) env = envelopes[firstCam.id];
+        }
+        if (!env) {
+          const mid = (node.plot.xMin + node.plot.xMax) / 2;
+          env = {
+            minCenterX: mid,
+            maxCenterX: mid,
+            minCenterY: 0,
+            maxCenterY: 0,
+            maxHalfWidth: 8,
+            minViewLeft: mid - 8,
+            maxViewRight: mid + 8,
+          };
+        }
+        const periodic = periodicCached(node.plot.expression);
+        const bounds = computeTimelineUnionSampling(node.plot, env, periodic);
+        ph = functionPlotSamplingKey(node.plot, bounds);
+        const cached = plotCache?.get(node.id);
+        poly = cached && cached.hash === ph ? cached.poly : sampleFunctionPlotInRange(node.plot, bounds.xMin, bounds.xMax, bounds.samples);
+        if (plotCache) plotCache.set(node.id, { hash: ph, poly });
+      } else {
+        ph = plotKey(node.plot as unknown as { kind: string } & Record<string, unknown>);
+        const cached = plotCache?.get(node.id);
+        poly = cached && cached.hash === ph ? cached.poly : samplePlot(node.plot);
+        if (plotCache) plotCache.set(node.id, { hash: ph, poly });
+      }
+
       plots[node.id] = {
         id: node.id,
         cameraId: node.cameraId,
@@ -122,6 +131,16 @@ export function evaluateAtTime(project: ProjectFileV1, tIn: number, plotCache?: 
         fontSize,
         latex: node.latex,
       };
+    }
+  }
+
+  const cameras: Record<string, ResolvedCamera2D> = { ...camerasBase };
+  for (const node of project.scene) {
+    if (node.type === "camera2d") {
+      const base = camerasBase[node.id];
+      if (base) {
+        cameras[node.id] = resolveCameraWithFollow(node, base, plots);
+      }
     }
   }
 

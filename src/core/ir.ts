@@ -89,6 +89,15 @@ export interface Camera2DProps {
   halfWidth: number;
   /** 0 = full opacity UI overlay, 1 = only plot */
   letterbox?: number;
+  /** Optional: follow the drawn tip of this plot (layered on keyframed camera). 0 = off. */
+  followPlotId?: string;
+  followWeight?: number;
+  followMaxX?: number;
+  followMaxY?: number;
+  /** Tip is framed near centerX + followLeadBias * halfWidth */
+  followLeadBias?: number;
+  /** Ramp follow in as draw passes this threshold (0..1). */
+  followRampDrawMin?: number;
 }
 
 export interface Camera2DNode {

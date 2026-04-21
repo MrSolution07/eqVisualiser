@@ -4,19 +4,19 @@ overview: Extend evaluation and directing for periodic functions with an arcleng
 todos:
   - id: extent-strategy
     content: "Choose and document arclength-stable sampling: timeline-union extent (default), world-space reveal, or one-sided extension—avoid per-frame symmetric extent only."
-    status: in_progress
+    status: completed
   - id: periodicity-module
     content: Add mathjs AST-based periodicity analysis + Vitest coverage (affine trig only; commensurate sums; unknown fallback).
-    status: pending
+    status: completed
   - id: dynamic-extent-sampling
     content: Implement chosen extent strategy; two-pass camera-then-plot eval; quantized bounds + hysteresis; cache keys; sample cap + degenerate-range guard.
-    status: pending
+    status: completed
   - id: tip-follow-camera
     content: Implement tipAtDraw + tests; optional Camera2D follow fields; gated follow near draw≈0; explicit followPlotId rule.
-    status: pending
+    status: completed
   - id: director-narrative
     content: "Refine shots.ts: leading-key easing fix, period-aware pan, multi-period outro + hold; do not auto-overwrite user timelines on Apply without explicit UX."
-    status: pending
+    status: completed
 isProject: false
 ---
 

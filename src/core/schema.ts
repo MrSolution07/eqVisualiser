@@ -14,7 +14,17 @@ export function createDefaultProject(): ProjectFileV1 {
         type: "camera2d",
         id: "main-cam",
         name: "Main",
-        initial: { centerX: 0, centerY: 0, halfWidth: 8 },
+        initial: {
+          centerX: 0,
+          centerY: 0,
+          halfWidth: 8,
+          followPlotId: "main-plot",
+          followWeight: 0.42,
+          followMaxX: 2.2,
+          followMaxY: 0.55,
+          followLeadBias: 0.14,
+          followRampDrawMin: 0.055,
+        },
       },
       {
         type: "plot2d",
@@ -42,7 +52,7 @@ export function createDefaultProject(): ProjectFileV1 {
       },
     ],
     timeline: {
-      duration: 18,
+      duration: 19,
       fps: 30,
       tracks: [],
     },
