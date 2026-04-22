@@ -39,6 +39,28 @@
   cursor: not-allowed;
 }
 
+.btn--primary {
+  background: #2d3a5c;
+  border-color: rgba(110, 231, 255, 0.25);
+}
+.btn--primary:hover {
+  background: #35456e;
+}
+
+.btn--lg {
+  padding: 0.55rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.btn--icon {
+  padding: 0.35rem 0.65rem;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
 .scribe {
   flex: 1;
   min-width: 200px;
@@ -71,7 +93,7 @@
   overflow: auto;
 }
 
-.sidebar h2 {
+.equationEditor__title {
   margin: 0;
   font-size: 0.75rem;
   font-weight: 600;
@@ -100,6 +122,11 @@
   width: 100%;
 }
 
+.equationEditor--sheet .field textarea {
+  min-height: 88px;
+  resize: none;
+}
+
 .exprError {
   margin: 0.15rem 0 0;
   font-size: 0.78rem;
@@ -118,6 +145,57 @@
   font-size: 0.75rem;
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.4);
+}
+
+.equationEditor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mathTokenBar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.mathTokenBtn {
+  flex: 0 0 auto;
+  background: #16171f;
+  color: #e8eaef;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.mathTokenBtn:hover {
+  background: #1e2030;
+}
+
+.suggestionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0.5rem;
+}
+
+.suggestionChip {
+  background: #12131a;
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.suggestionChip--recent {
+  border-color: rgba(167, 139, 250, 0.35);
+  color: #c4b5fd;
 }
 
 .stageWrap {
@@ -139,8 +217,251 @@
   justify-content: center;
 }
 
+.canvasHost--gesture {
+  touch-action: none;
+}
+
 .canvasHost canvas {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* —— Mobile chrome —— */
+
+.mobileChrome {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.mobileChrome--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobileChrome--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mobileChrome__top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 10px;
+  background: linear-gradient(180deg, rgba(8, 9, 12, 0.92), rgba(8, 9, 12, 0.55), transparent);
+}
+
+.mobileChrome__top.mobileChrome--hidden {
+  transform: translateY(-12px);
+}
+
+.mobileChrome__title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobileChrome__topActions {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mobileMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  min-width: 11rem;
+  padding: 6px;
+  background: #12131a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  z-index: 10;
+}
+
+.mobileMenu__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: #e8eaef;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+.mobileMenu__item:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+.mobileMenu__item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mobileMenu__meta {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.mobileChrome__scrubWrap {
+  position: absolute;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: rgba(5, 5, 8, 0.65);
+  backdrop-filter: blur(8px);
+}
+
+.mobileChrome__scrubWrap.mobileChrome--hidden {
+  transform: translateY(16px);
+}
+
+.mobileChrome__scribe {
+  flex: 1;
+  min-width: 0;
+  accent-color: #6ee7ff;
+}
+
+.mobileChrome__time {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.mobileChrome__bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(0deg, rgba(8, 9, 12, 0.96), rgba(8, 9, 12, 0.88));
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mobileChrome__bottom.mobileChrome--hidden {
+  transform: translateY(8px);
+}
+
+/* —— Equation sheet (mobile) —— */
+
+.equationSheetBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.equationSheetBackdrop--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.equationSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  max-height: min(88vh, 100% - env(safe-area-inset-top, 0px));
+  background: #0a0a0d;
+  border-radius: 16px 16px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  padding: 0 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: auto;
+  box-shadow: 0 -8px 48px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.equationSheet--open {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.equationSheet__handleWrap {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 6px;
+  position: sticky;
+  top: 0;
+  background: #0a0a0d;
+  z-index: 1;
+}
+
+.equationSheet__handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+@media (min-width: 769px) {
+  .equationSheet,
+  .equationSheetBackdrop {
+    display: none !important;
+  }
+
+  .mobileChrome__top,
+  .mobileChrome__bottom,
+  .mobileChrome__scrubWrap {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .toolbar--desktop {
+    display: none !important;
+  }
+
+  .sidebar {
+    display: none !important;
+  }
+
+  .body {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobileChrome {
+    transition: none;
+  }
+
+  .equationSheet {
+    transition: none;
+  }
+
+  .equationSheetBackdrop--open {
+    transition: none;
+  }
 }
