@@ -37,6 +37,8 @@ export function quantizeExtent(xMin: number, xMax: number, step: number): { xMin
 /**
  * Compute fixed world x-bounds for sampling a function plot over the whole timeline,
  * plus margin from camera envelope and optional fundamental period.
+ * The `envelope` must come from `computeCameraEnvelope(..., project.timeline.duration)`
+ * (same project instance `evaluateAtTime` uses) so the drawn polyline matches arclength `draw`.
  */
 export function computeTimelineUnionSampling(
   def: FunctionPlotDef,

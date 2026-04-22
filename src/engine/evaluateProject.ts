@@ -134,12 +134,29 @@ export function evaluateAtTime(project: ProjectFileV1, tIn: number, plotCache?: 
     }
   }
 
+  const firstPlot2d = project.scene.find((s) => s.type === "plot2d");
+
   const cameras: Record<string, ResolvedCamera2D> = { ...camerasBase };
   for (const node of project.scene) {
     if (node.type === "camera2d") {
       const base = camerasBase[node.id];
       if (base) {
-        cameras[node.id] = resolveCameraWithFollow(node, base, plots);
+        let followPlotId = node.initial.followPlotId;
+        if (!followPlotId) {
+          if (firstPlot2d) followPlotId = firstPlot2d.id;
+        }
+        const followPlotNode =
+          followPlotId && project.scene.find((s) => s.type === "plot2d" && s.id === followPlotId);
+        const plotInitialDraw =
+          followPlotNode && followPlotNode.type === "plot2d" ? followPlotNode.initialDraw : 0;
+        const followCtx = {
+          project,
+          t,
+          tracks,
+          plotId: followPlotId ?? (firstPlot2d ? firstPlot2d.id : "main-plot"),
+          plotInitialDraw,
+        };
+        cameras[node.id] = resolveCameraWithFollow(node, base, plots, followCtx);
       }
     }
   }

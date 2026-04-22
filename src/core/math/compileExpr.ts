@@ -1,5 +1,5 @@
 import { create, all, type MathNode, type FunctionNode, type SymbolNode } from "mathjs";
-import type { ParametricPlotDef, FunctionPlotDef } from "../ir";
+import type { ParametricPlotDef, FunctionPlotDef, ProjectFileV1 } from "../ir";
 import { normalizeFunctionPlotExpression } from "./normalizeExpression";
 
 const math = create(all);
@@ -64,10 +64,35 @@ export function compileFunctionPlot(def: FunctionPlotDef): { compile: () => (x: 
     compile: () => (x: number) => {
       const v = c.evaluate({ x, t: x });
       if (typeof v === "number" && Number.isFinite(v)) return v;
-      if (v && typeof v === "object" && "re" in v) return Number((v as { re: number; im: number }).re);
+      if (v && typeof v === "object" && "re" in v) {
+        const cplx = v as { re: number; im: number };
+        if (v && typeof cplx.im === "number" && Math.abs(cplx.im) > 1e-9) {
+          return NaN;
+        }
+        return Number(cplx.re);
+      }
       return NaN;
     },
   };
+}
+
+/**
+ * If the expression cannot be compiled for a function plot, returns a short message; otherwise `null`.
+ * Used so the UI can explain the flat y=0 fallback from `sampleFunctionPlotInRange`.
+ */
+export function getFunctionPlotCompileError(def: FunctionPlotDef): string | null {
+  try {
+    compileFunctionPlot(def);
+  } catch (e) {
+    return e instanceof Error ? e.message : String(e);
+  }
+  return null;
+}
+
+export function getFirstFunctionPlotCompileError(project: ProjectFileV1): string | null {
+  const node = project.scene.find((s) => s.type === "plot2d" && s.plot.kind === "function");
+  if (!node || node.type !== "plot2d" || node.plot.kind !== "function") return null;
+  return getFunctionPlotCompileError(node.plot);
 }
 
 export function compileParametric(def: ParametricPlotDef): {

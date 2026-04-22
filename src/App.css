@@ -100,6 +100,20 @@
   width: 100%;
 }
 
+.exprError {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #fca5a5;
+}
+.exprError code {
+  font-size: 0.85em;
+  color: #fde68a;
+}
+.exprErrorHint {
+  color: rgba(255, 255, 255, 0.55);
+}
+
 .hint {
   font-size: 0.75rem;
   line-height: 1.4;

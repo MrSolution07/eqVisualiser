@@ -47,6 +47,7 @@ export function App(): ReactElement {
   const setPlaying = useStore((s) => s.setPlaying);
   const setExpression = useStore((s) => s.setExpression);
   const applyStoryboard = useStore((s) => s.applyStoryboard);
+  const expressionError = useStore((s) => s.expressionError);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const glRef = useRef<Plot2DWebGL | null>(null);
@@ -172,6 +173,16 @@ export function App(): ReactElement {
               onChange={(e) => setExpr(e.target.value)}
               spellCheck={false}
             />
+            {expressionError ? (
+              <p className="exprError" role="alert">
+                {expressionError}
+                <span className="exprErrorHint">
+                  {" "}
+                  Function plots are y in terms of x only. For a circle, use something like{" "}
+                  <code>sqrt(25 - x^2)</code> with |x| ≤ 5, or a parametric plot in the project scene.
+                </span>
+              </p>
+            ) : null}
             <div className="hint">Apply updates the function plot. “Story” reapplies director shots + timeline.</div>
             <div style={{ display: "flex", gap: 8 }}>
               <button

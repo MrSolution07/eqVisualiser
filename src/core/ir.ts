@@ -37,7 +37,7 @@ export interface TimelineV1 {
   tracks: PropertyTrack[];
 }
 
-export type PlotKind = "function" | "parametric";
+export type PlotKind = "function" | "parametric" | "implicit";
 
 /** y = f(x) */
 export interface FunctionPlotDef {
@@ -46,6 +46,18 @@ export interface FunctionPlotDef {
   expression: string;
   xMin: number;
   xMax: number;
+  samples: number;
+}
+
+/** F(x, y) = 0, sampled in a 2D window (marching squares). */
+export interface ImplicitPlotDef {
+  kind: "implicit";
+  /** mathjs expression; zero set F = 0 is drawn */
+  expression: string;
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
   samples: number;
 }
 
@@ -61,7 +73,7 @@ export interface ParametricPlotDef {
   param: string;
 }
 
-export type PlotDefinition = FunctionPlotDef | ParametricPlotDef;
+export type PlotDefinition = FunctionPlotDef | ParametricPlotDef | ImplicitPlotDef;
 
 export interface StyleTokensV1 {
   background: string;
@@ -98,6 +110,19 @@ export interface Camera2DProps {
   followLeadBias?: number;
   /** Ramp follow in as draw passes this threshold (0..1). */
   followRampDrawMin?: number;
+  /**
+   * Backward-time smoothing of follow offset (seconds). 0 = single-step (legacy behavior).
+   * Deterministic: weighted blend of offsets over [t-τ, t].
+   */
+  followSmoothSeconds?: number;
+  /** Number of time samples in the smoothing window (2–32). */
+  followSmoothSampleCount?: number;
+  /**
+   * When draw is above this (0..1), follow tapers to zero toward draw=1 (seamless handoff to outro keyframes). 1 = no end falloff.
+   */
+  followDrawFalloffStart?: number;
+  /** Extra lead along tip motion (0 = off). Tip offset by gain × (tip(t) - tip(t-ε)). */
+  followVelocityLeadGain?: number;
 }
 
 export interface Camera2DNode {
