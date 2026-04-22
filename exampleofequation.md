@@ -7,8 +7,8 @@ Functions where behavior is naturally **unbounded**, **repeats forever**, or **n
 - `sin(x)`
 - `cos(x)`
 - `tan(x)` — vertical asymptotes repeat forever
-- `sin(1/x)` — oscillates infinitely often as \(x \to 0^+\)
-- `x * sin(x)` — amplitude grows without bound as \(|x| \to \infty\)
+- `sin(1/x)` — oscillates infinitely often as x \to 0^+
+- `x * sin(x)` — amplitude grows without bound as |x| \to \infty
 
 ## Unbounded growth / decay along the axis
 
@@ -16,18 +16,18 @@ Functions where behavior is naturally **unbounded**, **repeats forever**, or **n
 - `exp(-x)`
 - `x^2`, `x^3`
 - `sqrt(abs(x))`
-- `log(x)` on \((0, \infty)\); `log(abs(x))` (careful near 0)
+- `log(x)` on (0, \infty); `log(abs(x))` (careful near 0)
 
 ## Asymptotic / “limit at infinity” behavior
 
 - `1/x`
 - `1/(x^2+1)` — tail continues forever, horizontal asymptote
-- `atan(x)` — approaches \(\pm\pi/2\) as \(x \to \pm\infty\)
-- `x / (1 + abs(x))` — approaches \(\pm1\)
+- `atan(x)` — approaches \pm\pi/2 as x \to \pm\infty
+- `x / (1 + abs(x))` — approaches \pm1
 
 ## Infinitely many features (faster/denser structure)
 
-- `sin(x^2)` — oscillation frequency increases without bound as \(|x|\) grows
+- `sin(x^2)` — oscillation frequency increases without bound as |x| grows
 - `x * sin(x^2)` — same idea with growing envelope
 
 ## Note for plotting
@@ -44,3 +44,5 @@ Short list that tends to look good in cinematic plots:
 - `sin(x^2)`
 - `1/(1 + x^2)`
 - `exp(-x) * sin(3*x)`
+- (x^2 + y^2)^2 = 50*(x^2 - y^2) 
+
