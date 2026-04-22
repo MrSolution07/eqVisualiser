@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { compileFunctionPlot, getFunctionPlotCompileError } from "./compileExpr";
+import {
+  compileFunctionPlot,
+  compileImplicitPlot,
+  getFunctionPlotCompileError,
+  getPlotCompileError,
+  tryCompileScalarToNumber,
+} from "./compileExpr";
 import { evaluateAtTime } from "../../engine/evaluateProject";
 import { createDefaultProject } from "../schema";
 
@@ -44,6 +50,26 @@ describe("compile", () => {
     expect(getFunctionPlotCompileError({ ...base, expression: "sin(x)" })).toBeNull();
     expect(getFunctionPlotCompileError({ ...base, expression: "x^2 + y^2 = 25" })?.length).toBeGreaterThan(0);
     expect(getFunctionPlotCompileError({ ...base, expression: "x^2 + y^2 - 25" })).toMatch(/Unknown symbol: y/);
+  });
+
+  it("getPlotCompileError for implicit; compileImplicitPlot F(x,y)", () => {
+    const im = {
+      kind: "implicit" as const,
+      expression: "(x^2 + y^2) - (25)",
+      xMin: -8,
+      xMax: 8,
+      yMin: -8,
+      yMax: 8,
+      samples: 64,
+    };
+    expect(getPlotCompileError(im)).toBeNull();
+    const f = compileImplicitPlot(im.expression).compile();
+    expect(f(3, 4)).toBeCloseTo(0, 5);
+  });
+
+  it("tryCompileScalarToNumber evaluates constant expressions", () => {
+    expect(tryCompileScalarToNumber("3*sin(2*pi)")).toBeCloseTo(0, 10);
+    expect(tryCompileScalarToNumber("2+2")).toBe(4);
   });
 
   it("sqrt for negative radicand yields NaN (not complex .re) so out-of-domain samples drop", () => {

@@ -1,8 +1,9 @@
 import type { ProjectFileV1 } from "../core/ir";
 import { analyzePeriodicity } from "../core/math/analyzePeriodicity";
 import { sampleFunctionPlotInRange } from "../core/math/samplePlot";
+import { sampleImplicitPlotInRange } from "../core/math/implicitPlot";
 import { computeCameraEnvelope } from "../engine/cameraEnvelope";
-import { computeTimelineUnionSampling } from "../engine/plotSampling";
+import { computeTimelineUnionSampling, computeTimelineUnionSampling2D } from "../engine/plotSampling";
 
 /** Match typical canvas aspect for framed halfWidth (world units per half screen width; view height 2*halfW/aspect). */
 const PREVIEW_ASPECT = 16 / 9;
@@ -17,15 +18,25 @@ export function computeHeroOutroFraming(
   compositionDuration: number,
 ): { centerX: number; centerY: number; halfWidth: number } | null {
   const cam = project.scene.find((s) => s.type === "camera2d");
-  const plotN = project.scene.find((s) => s.type === "plot2d" && s.plot.kind === "function");
-  if (!cam || cam.type !== "camera2d" || !plotN || plotN.type !== "plot2d" || plotN.plot.kind !== "function") {
+  const plotN = project.scene.find(
+    (s) => s.type === "plot2d" && (s.plot.kind === "function" || s.plot.kind === "implicit"),
+  );
+  if (!cam || cam.type !== "camera2d" || !plotN || plotN.type !== "plot2d") {
     return null;
   }
   const p: ProjectFileV1 = { ...project, timeline: { ...project.timeline, duration: compositionDuration } };
   const env = computeCameraEnvelope(p, cam.id, cam.initial, compositionDuration);
-  const periodic = analyzePeriodicity(plotN.plot.expression);
-  const b = computeTimelineUnionSampling(plotN.plot, env, periodic);
-  const poly = sampleFunctionPlotInRange(plotN.plot, b.xMin, b.xMax, b.samples);
+  let poly;
+  if (plotN.plot.kind === "function") {
+    const periodic = analyzePeriodicity(plotN.plot.expression);
+    const b = computeTimelineUnionSampling(plotN.plot, env, periodic);
+    poly = sampleFunctionPlotInRange(plotN.plot, b.xMin, b.xMax, b.samples);
+  } else if (plotN.plot.kind === "implicit") {
+    const b2 = computeTimelineUnionSampling2D(plotN.plot, env);
+    poly = sampleImplicitPlotInRange(plotN.plot, b2.xMin, b2.xMax, b2.yMin, b2.yMax, b2.nx, b2.ny);
+  } else {
+    return null;
+  }
   const pts = poly.points;
   if (pts.length < 2) return null;
   let minX = pts[0]!;

@@ -28,6 +28,8 @@ describe("computeCameraEnvelope", () => {
       maxHalfWidth: 1,
       minViewLeft: -1,
       maxViewRight: 1,
+      minViewBottom: -1 / (16 / 9),
+      maxViewTop: 1 / (16 / 9),
     };
     const bigEnv: CameraEnvelope2D = {
       minCenterX: 0,
@@ -37,6 +39,8 @@ describe("computeCameraEnvelope", () => {
       maxHalfWidth: 20,
       minViewLeft: -20,
       maxViewRight: 20,
+      minViewBottom: -20 / (16 / 9),
+      maxViewTop: 20 / (16 / 9),
     };
     const a = functionPlotSamplingKey(def, computeTimelineUnionSampling(def, smallEnv, per));
     const b = functionPlotSamplingKey(def, computeTimelineUnionSampling(def, bigEnv, per));

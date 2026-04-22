@@ -2,11 +2,12 @@ import type { ProjectFileV1, SceneNode } from "../core/ir";
 import type { PropertyTrack } from "../core/ir";
 import { valueAtTime } from "./keyframes";
 import { samplePlot, sampleFunctionPlotInRange } from "../core/math/samplePlot";
+import { sampleImplicitPlotInRange } from "../core/math/implicitPlot";
 import type { Polyline2D } from "../core/math/samplePlot";
 import { analyzePeriodicity } from "../core/math/analyzePeriodicity";
 import { collectTracks } from "./timelineUtils";
-import { computeCameraEnvelope } from "./cameraEnvelope";
-import { computeTimelineUnionSampling, functionPlotSamplingKey } from "./plotSampling";
+import { computeCameraEnvelope, CAMERA_PREVIEW_ASPECT } from "./cameraEnvelope";
+import { computeTimelineUnionSampling, functionPlotSamplingKey, computeTimelineUnionSampling2D, implicitPlotSamplingKey } from "./plotSampling";
 import { resolveCameraWithFollow } from "./cameraFollow";
 import type { RenderStateV1, ResolvedCamera2D, ResolvedPlot2D, ResolvedEquation } from "./renderState";
 
@@ -87,14 +88,18 @@ export function evaluateAtTime(project: ProjectFileV1, tIn: number, plotCache?: 
         }
         if (!env) {
           const mid = (node.plot.xMin + node.plot.xMax) / 2;
+          const hw = 8;
+          const hH = hw / CAMERA_PREVIEW_ASPECT;
           env = {
             minCenterX: mid,
             maxCenterX: mid,
             minCenterY: 0,
             maxCenterY: 0,
-            maxHalfWidth: 8,
-            minViewLeft: mid - 8,
-            maxViewRight: mid + 8,
+            maxHalfWidth: hw,
+            minViewLeft: mid - hw,
+            maxViewRight: mid + hw,
+            minViewBottom: -hH,
+            maxViewTop: hH,
           };
         }
         const periodic = periodicCached(node.plot.expression);
@@ -102,6 +107,38 @@ export function evaluateAtTime(project: ProjectFileV1, tIn: number, plotCache?: 
         ph = functionPlotSamplingKey(node.plot, bounds);
         const cached = plotCache?.get(node.id);
         poly = cached && cached.hash === ph ? cached.poly : sampleFunctionPlotInRange(node.plot, bounds.xMin, bounds.xMax, bounds.samples);
+        if (plotCache) plotCache.set(node.id, { hash: ph, poly });
+      } else if (node.plot.kind === "implicit") {
+        let env = envelopes[node.cameraId];
+        if (!env) {
+          const firstCam = project.scene.find((s) => s.type === "camera2d");
+          if (firstCam) env = envelopes[firstCam.id];
+        }
+        if (!env) {
+          const pl = node.plot;
+          const midx = (pl.xMin + pl.xMax) * 0.5;
+          const midy = (pl.yMin + pl.yMax) * 0.5;
+          const hw = 8;
+          const hH = hw / CAMERA_PREVIEW_ASPECT;
+          env = {
+            minCenterX: midx,
+            maxCenterX: midx,
+            minCenterY: midy,
+            maxCenterY: midy,
+            maxHalfWidth: hw,
+            minViewLeft: midx - hw,
+            maxViewRight: midx + hw,
+            minViewBottom: midy - hH,
+            maxViewTop: midy + hH,
+          };
+        }
+        const b2 = computeTimelineUnionSampling2D(node.plot, env);
+        ph = implicitPlotSamplingKey(node.plot, b2);
+        const cached = plotCache?.get(node.id);
+        poly =
+          cached && cached.hash === ph
+            ? cached.poly
+            : sampleImplicitPlotInRange(node.plot, b2.xMin, b2.xMax, b2.yMin, b2.yMax, b2.nx, b2.ny);
         if (plotCache) plotCache.set(node.id, { hash: ph, poly });
       } else {
         ph = plotKey(node.plot as unknown as { kind: string } & Record<string, unknown>);

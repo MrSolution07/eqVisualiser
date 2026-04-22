@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { createDefaultProject } from "./core/schema";
 import type { ProjectFileV1 } from "./core/ir";
-import { getFirstFunctionPlotCompileError } from "./core/math/compileExpr";
+import { getFirstPlotCompileError } from "./core/math/compileExpr";
+import { plotDefinitionFromUserInput } from "./core/math/equationClassifier";
 import { defaultStoryboard } from "./director/shots";
 
 type Store = {
@@ -21,30 +22,30 @@ export const useStore = create<Store>((set) => ({
   project: initial,
   t: 0,
   playing: false,
-  expressionError: getFirstFunctionPlotCompileError(initial),
+  expressionError: getFirstPlotCompileError(initial),
   setT: (t) => set({ t }),
   setPlaying: (playing) => set({ playing }),
   setExpression: (expression) => {
     set((s) => {
       const scene = s.project.scene.map((n) => {
         if (n.type !== "plot2d") return n;
-        if (n.plot.kind !== "function") return n;
+        const plot = plotDefinitionFromUserInput(expression, n.plot);
         return {
           ...n,
-          plot: { ...n.plot, expression },
+          plot,
         };
       });
       const project = { ...s.project, scene };
       return {
         project,
-        expressionError: getFirstFunctionPlotCompileError(project),
+        expressionError: getFirstPlotCompileError(project),
       };
     });
   },
   applyStoryboard: () => {
     set((s) => {
       const project = defaultStoryboard(s.project);
-      return { project, expressionError: getFirstFunctionPlotCompileError(project) };
+      return { project, expressionError: getFirstPlotCompileError(project) };
     });
   },
 }));

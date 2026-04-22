@@ -34,10 +34,9 @@ function mapLatexCommand(cmd: string): string {
   return key;
 }
 
-export function normalizeFunctionPlotExpression(input: string): string {
+/** LaTeX / unicode cleanup only (no `y =` strip). Use before top-level `=` split for implicit equations. */
+export function normalizeLatexSurface(input: string): string {
   let s = input.trim();
-  s = s.replace(/^\s*f\s*\(\s*x\s*\)\s*=\s*/i, "");
-  s = s.replace(/^\s*y\s*=\s*/i, "");
   s = s.replace(/\u00d7/g, "*");
   s = s.replace(/\u22c5|\u00b7/g, "*");
   s = s.replace(/\\cdotp?/g, "*");
@@ -46,4 +45,11 @@ export function normalizeFunctionPlotExpression(input: string): string {
   s = s.replace(/\\([a-zA-Z]+)/g, (_, cmd: string) => mapLatexCommand(cmd));
   s = s.replace(/\s+/g, " ").trim();
   return s;
+}
+
+export function normalizeFunctionPlotExpression(input: string): string {
+  let s = input.trim();
+  s = s.replace(/^\s*f\s*\(\s*x\s*\)\s*=\s*/i, "");
+  s = s.replace(/^\s*y\s*=\s*/i, "");
+  return normalizeLatexSurface(s);
 }

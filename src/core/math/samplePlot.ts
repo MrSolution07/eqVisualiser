@@ -1,5 +1,6 @@
-import type { FunctionPlotDef, PlotDefinition } from "../ir";
+import type { FunctionPlotDef, PlotDefinition, ImplicitPlotDef } from "../ir";
 import { compileFunctionPlot, compileParametric } from "./compileExpr";
+import { sampleImplicitPlotInRange } from "./implicitPlot";
 
 export interface Polyline2D {
   points: Float32Array;
@@ -8,7 +9,7 @@ export interface Polyline2D {
   totalLen: number;
 }
 
-function buildCumLen(points: Float32Array): { cumLen: Float32Array; totalLen: number } {
+export function buildCumLen(points: Float32Array): { cumLen: Float32Array; totalLen: number } {
   const n = points.length / 2;
   const cumLen = new Float32Array(n);
   let acc = 0;
@@ -32,6 +33,12 @@ function fallbackPolyline(xMin: number, xMax: number): Polyline2D {
  * Sample y=f(x) on [xMin,xMax]; drops non-finite y so tan spikes do not poison the strip.
  * On compile/parse errors, returns a short horizontal segment instead of throwing (keeps UI alive).
  */
+/** Fallback grid when 2D timeline-union is not used (e.g. tests). */
+function defaultImplicitGridN(def: ImplicitPlotDef): number {
+  const s = def.samples;
+  return Math.max(8, Math.min(256, Math.floor(Math.sqrt(Math.max(64, s)))));
+}
+
 export function sampleFunctionPlotInRange(def: FunctionPlotDef, xMin: number, xMax: number, samples: number): Polyline2D {
   let compileFn: () => (x: number) => number;
   try {
@@ -77,6 +84,10 @@ export function sampleFunctionPlotInRange(def: FunctionPlotDef, xMin: number, xM
 export function samplePlot(def: PlotDefinition): Polyline2D {
   if (def.kind === "function") {
     return sampleFunctionPlotInRange(def, def.xMin, def.xMax, def.samples);
+  }
+  if (def.kind === "implicit") {
+    const n = defaultImplicitGridN(def);
+    return sampleImplicitPlotInRange(def, def.xMin, def.xMax, def.yMin, def.yMax, n, n);
   }
   const { compile } = compileParametric(def);
   const f = compile();

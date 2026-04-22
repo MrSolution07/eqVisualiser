@@ -1,5 +1,5 @@
 import { create, all, type MathNode, type FunctionNode, type SymbolNode } from "mathjs";
-import type { ParametricPlotDef, FunctionPlotDef, ProjectFileV1 } from "../ir";
+import type { ParametricPlotDef, FunctionPlotDef, ImplicitPlotDef, PlotDefinition, ProjectFileV1 } from "../ir";
 import { normalizeFunctionPlotExpression } from "./normalizeExpression";
 
 const math = create(all);
@@ -54,6 +54,33 @@ function getFunctionName(n: FunctionNode): string | undefined {
 /** Independent variable for function plots: `x` is canonical; `t` is allowed as an alias (many formulas use t). */
 const FUNCTION_PLOT_VARS = new Set(["x", "t"]);
 
+const IMPLICIT_PLOT_VARS = new Set(["x", "y"]);
+
+export function compileImplicitPlot(expression: string): { compile: () => (x: number, y: number) => number; raw: string } {
+  const node = math.parse(expression);
+  assertSafeNode(node, IMPLICIT_PLOT_VARS);
+  const c = node.compile() as { evaluate: (s: Record<string, number>) => unknown };
+  return {
+    raw: expression,
+    compile: () => (x: number, y: number) => toNumber(c.evaluate({ x, y })),
+  };
+}
+
+/**
+ * Constant expression: no free variables (only pi, e, and allowed functions of constants).
+ */
+export function tryCompileScalarToNumber(expression: string): number | null {
+  try {
+    const node = math.parse(expression);
+    assertSafeNode(node, new Set());
+    const c = node.compile() as { evaluate: (s: Record<string, number>) => unknown };
+    const v = c.evaluate({});
+    return toNumber(v);
+  } catch {
+    return null;
+  }
+}
+
 export function compileFunctionPlot(def: FunctionPlotDef): { compile: () => (x: number) => number; raw: string } {
   const normalized = normalizeFunctionPlotExpression(def.expression);
   const node = math.parse(normalized);
@@ -89,10 +116,40 @@ export function getFunctionPlotCompileError(def: FunctionPlotDef): string | null
   return null;
 }
 
+export function getImplicitPlotCompileError(def: ImplicitPlotDef): string | null {
+  try {
+    compileImplicitPlot(def.expression);
+  } catch (e) {
+    return e instanceof Error ? e.message : String(e);
+  }
+  return null;
+}
+
+export function getParametricPlotCompileError(def: ParametricPlotDef): string | null {
+  try {
+    compileParametric(def);
+  } catch (e) {
+    return e instanceof Error ? e.message : String(e);
+  }
+  return null;
+}
+
+export function getPlotCompileError(def: PlotDefinition): string | null {
+  if (def.kind === "function") return getFunctionPlotCompileError(def);
+  if (def.kind === "implicit") return getImplicitPlotCompileError(def);
+  if (def.kind === "parametric") return getParametricPlotCompileError(def);
+  return "Unknown plot kind";
+}
+
+export function getFirstPlotCompileError(project: ProjectFileV1): string | null {
+  const node = project.scene.find((s) => s.type === "plot2d");
+  if (!node || node.type !== "plot2d") return null;
+  return getPlotCompileError(node.plot);
+}
+
+/** @deprecated use getFirstPlotCompileError */
 export function getFirstFunctionPlotCompileError(project: ProjectFileV1): string | null {
-  const node = project.scene.find((s) => s.type === "plot2d" && s.plot.kind === "function");
-  if (!node || node.type !== "plot2d" || node.plot.kind !== "function") return null;
-  return getFunctionPlotCompileError(node.plot);
+  return getFirstPlotCompileError(project);
 }
 
 export function compileParametric(def: ParametricPlotDef): {
