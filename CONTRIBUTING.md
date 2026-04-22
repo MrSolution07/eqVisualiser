@@ -7,14 +7,14 @@
 
 ## Commands
 
-| Command | Purpose |
-| ------- | ------- |
-| `npm run dev` | Dev server with HMR |
-| `npm run typecheck` | TypeScript (`tsc --noEmit`) |
-| `npm run lint` / `npm run lint:fix` | ESLint |
-| `npm run format` / `npm run format:check` | Prettier |
-| `npm test` | Vitest (unit tests) |
-| `npm run build` | Production build |
+| Command                                   | Purpose                     |
+| ----------------------------------------- | --------------------------- |
+| `npm run dev`                             | Dev server with HMR         |
+| `npm run typecheck`                       | TypeScript (`tsc --noEmit`) |
+| `npm run lint` / `npm run lint:fix`       | ESLint                      |
+| `npm run format` / `npm run format:check` | Prettier                    |
+| `npm test`                                | Vitest (unit tests)         |
+| `npm run build`                           | Production build            |
 
 CI runs: `typecheck`, `lint`, `format:check`, `test`, `build` (see `.github/workflows/ci.yml`).
 

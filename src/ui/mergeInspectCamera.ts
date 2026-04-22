@@ -1,6 +1,4 @@
-import type { RenderStateV1 } from "../engine/renderState";
-
-const MAIN_CAM = "main-cam";
+import { getViewCameraId, type RenderStateV1 } from "../engine/renderState";
 
 export type InspectOffset = {
   /** Additive pan in world units (applied to evaluated camera). */
@@ -17,7 +15,9 @@ export function mergeInspectIntoRenderState(
   if (!inspect || (inspect.panX === 0 && inspect.panY === 0 && inspect.zoom === 1)) {
     return state;
   }
-  const cam = state.cameras[MAIN_CAM];
+  const id = getViewCameraId(state.cameras);
+  if (!id) return state;
+  const cam = state.cameras[id];
   if (!cam) return state;
   const next = {
     ...cam,
@@ -27,7 +27,7 @@ export function mergeInspectIntoRenderState(
   };
   return {
     ...state,
-    cameras: { ...state.cameras, [MAIN_CAM]: next },
+    cameras: { ...state.cameras, [id]: next },
   };
 }
 

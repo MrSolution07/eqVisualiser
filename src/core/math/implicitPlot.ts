@@ -147,9 +147,38 @@ export function sampleImplicitPlotInRange(
   const eps2 = (scale * 1e-6) ** 2;
   const n = segs.length;
   const parent = Array.from({ length: n }, (_, k) => k);
+
+  // Spatial hash: O(n) average vs O(n²) all-pairs; cell covers ~4× the endpoint tolerance.
+  const cell = Math.max(Math.sqrt(eps2) * 4, scale * 1e-10);
+  const bucket = new Map<string, number[]>();
+  const addToCell = (p: Pt, segIndex: number) => {
+    const k = `${Math.floor(p.x / cell)}:${Math.floor(p.y / cell)}`;
+    const arr = bucket.get(k) ?? [];
+    arr.push(segIndex);
+    bucket.set(k, arr);
+  };
   for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) {
-      const a = segs[i]!;
+    const s = segs[i]!;
+    addToCell(s.a, i);
+    addToCell(s.b, i);
+  }
+
+  const neigh = new Set<number>();
+  for (let i = 0; i < n; i++) {
+    const a = segs[i]!;
+    neigh.clear();
+    for (const p of [a.a, a.b]) {
+      const gx = Math.floor(p.x / cell);
+      const gy = Math.floor(p.y / cell);
+      for (let ddx = -1; ddx <= 1; ddx++) {
+        for (let ddy = -1; ddy <= 1; ddy++) {
+          const list = bucket.get(`${gx + ddx}:${gy + ddy}`);
+          if (list) for (const j of list) neigh.add(j);
+        }
+      }
+    }
+    for (const j of neigh) {
+      if (j <= i) continue;
       const b = segs[j]!;
       if (
         near(a.a, b.a, eps2) ||

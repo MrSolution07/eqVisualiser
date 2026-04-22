@@ -1,4 +1,9 @@
+/**
+ * WebGL2 preview: clear, grid/axes, thick polylines in world space. Uses
+ * `getViewCamera` so the primary camera is `main-cam` when present, else the first camera.
+ */
 import type { RenderStateV1 } from "../../engine/evaluateProject";
+import { getViewCamera } from "../../engine/renderState";
 import { createProgram } from "./glUtils";
 import { lineFS, lineVS, solidFS, solidVS } from "./shaders";
 import { extrudeLineToTriangles } from "../lineExtrude";
@@ -64,7 +69,7 @@ export class Plot2DWebGL {
     }
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const cam = state.cameras["main-cam"];
+    const cam = getViewCamera(state.cameras);
     if (!cam) return;
     const aspect = this.canvas.width / this.canvas.height;
     const halfW = cam.halfWidth;

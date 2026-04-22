@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { useStore } from "./store";
 import { evaluateAtTime } from "./engine/evaluateProject";
+import { getViewCamera } from "./engine/renderState";
 import type { Polyline2D } from "./core/math/samplePlot";
 import { EquationEditor } from "./ui/EquationEditor";
 import { EquationSheet } from "./ui/EquationSheet";
@@ -67,7 +68,7 @@ export function App(): ReactElement {
   }, [project]);
 
   const getEvalCam = useCallback(
-    () => evaluateAtTime(project, t, cache.current).cameras["main-cam"],
+    () => getViewCamera(evaluateAtTime(project, t, cache.current).cameras),
     [project, t],
   );
 

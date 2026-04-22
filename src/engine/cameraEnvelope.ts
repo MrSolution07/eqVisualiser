@@ -1,7 +1,7 @@
 import type { ProjectFileV1 } from "../core/ir";
-import type { PropertyTrack } from "../core/ir";
-import { valueAtTime } from "./keyframes";
+import { propertyTarget } from "../core/trackTarget";
 import { collectTracks, keyframeTimesForTargets } from "./timelineUtils";
+import { getNum } from "./trackValue";
 
 /** Same as [`PREVIEW_ASPECT` in plotSampling] / WebGL: vertical half-extent in world = halfWidth / aspect. */
 export const CAMERA_PREVIEW_ASPECT = 16 / 9;
@@ -27,17 +27,6 @@ export interface CameraEnvelope2D {
   maxViewTop: number;
 }
 
-function getNum(
-  tracks: Map<string, PropertyTrack>,
-  target: string,
-  t: number,
-  initial: number,
-): number {
-  const tr = tracks.get(target);
-  if (!tr) return initial;
-  return valueAtTime(tr, t, initial);
-}
-
 /**
  * Timeline-union envelope: min/max camera center and max halfWidth over all keyframe
  * times (plus 0 and `duration`) for a camera node. Used for arclength-stable plot x-extent.
@@ -54,7 +43,11 @@ export function computeCameraEnvelope(
   duration: number,
 ): CameraEnvelope2D {
   const tracks = collectTracks(project.timeline);
-  const targets = [`${cameraId}.centerX`, `${cameraId}.centerY`, `${cameraId}.halfWidth`];
+  const targets = [
+    propertyTarget(cameraId, "centerX"),
+    propertyTarget(cameraId, "centerY"),
+    propertyTarget(cameraId, "halfWidth"),
+  ];
   const times = keyframeTimesForTargets(tracks, targets);
   const sampleTimes = new Set<number>([0, duration, ...times]);
   let minCx = initial.centerX;
@@ -68,9 +61,9 @@ export function computeCameraEnvelope(
   let minViewBottom = initial.centerY - initial.halfWidth * invAspect;
   let maxViewTop = initial.centerY + initial.halfWidth * invAspect;
   for (const t of sampleTimes) {
-    const cx = getNum(tracks, `${cameraId}.centerX`, t, initial.centerX);
-    const cy = getNum(tracks, `${cameraId}.centerY`, t, initial.centerY);
-    const hw = getNum(tracks, `${cameraId}.halfWidth`, t, initial.halfWidth);
+    const cx = getNum(tracks, propertyTarget(cameraId, "centerX"), t, initial.centerX);
+    const cy = getNum(tracks, propertyTarget(cameraId, "centerY"), t, initial.centerY);
+    const hw = getNum(tracks, propertyTarget(cameraId, "halfWidth"), t, initial.halfWidth);
     const halfH = hw * invAspect;
     minCx = Math.min(minCx, cx);
     maxCx = Math.max(maxCx, cx);

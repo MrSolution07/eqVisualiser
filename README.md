@@ -62,12 +62,17 @@ Open the URL Vite prints (usually `http://localhost:5173`). Use the sidebar to e
 
 ### Other scripts
 
-| Command           | Purpose                                     |
-| ----------------- | ------------------------------------------- |
-| `npm run dev`     | Start Vite dev server with HMR              |
-| `npm run build`   | Typecheck (`tsc`) and production bundle     |
-| `npm run preview` | Serve the production build locally          |
-| `npm test`        | Run **Vitest** unit tests (non-interactive) |
+| Command             | Purpose                                     |
+| ------------------- | ------------------------------------------- |
+| `npm run dev`       | Start Vite dev server with HMR              |
+| `npm run build`     | Typecheck (`tsc`) and production bundle     |
+| `npm run preview`   | Serve the production build locally          |
+| `npm test`          | Run **Vitest** unit tests (non-interactive) |
+| `npm run typecheck` | TypeScript only (`tsc --noEmit`)            |
+| `npm run lint`      | ESLint                                      |
+| `npm run format`    | Prettier (write)                            |
+
+**Contributing:** see [CONTRIBUTING.md](CONTRIBUTING.md) for CI expectations, code style, and documentation practices.
 
 ---
 

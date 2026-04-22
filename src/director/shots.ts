@@ -1,4 +1,5 @@
 import type { ProjectFileV1, PropertyTrack } from "../core/ir";
+import { DEFAULT_FOLLOW_PLOT_ID, DEFAULT_VIEW_CAMERA_ID } from "../core/trackTarget";
 import { analyzePeriodicity } from "../core/math/analyzePeriodicity";
 import { computeHeroOutroFraming } from "./outroFraming";
 
@@ -50,8 +51,8 @@ export function tracksForShots(
   const tracks: PropertyTrack[] = [];
   const findCam = project.scene.find((s) => s.type === "camera2d");
   const findPlot = project.scene.find((s) => s.type === "plot2d");
-  const cameraId = findCam?.id ?? "main-cam";
-  const plotId = findPlot?.id ?? "main-plot";
+  const cameraId = findCam?.id ?? DEFAULT_VIEW_CAMERA_ID;
+  const plotId = findPlot?.id ?? DEFAULT_FOLLOW_PLOT_ID;
 
   const defaultHw = findCam && findCam.type === "camera2d" ? findCam.initial.halfWidth : 8;
 

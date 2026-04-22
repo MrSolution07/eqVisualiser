@@ -1,25 +1,15 @@
 import type { ProjectFileV1, PropertyTrack } from "../core/ir";
 import type { Camera2DNode } from "../core/ir";
+import { propertyTarget } from "../core/trackTarget";
 import type { Polyline2D } from "../core/math/samplePlot";
 import type { ResolvedCamera2D, ResolvedPlot2D } from "./renderState";
-import { valueAtTime } from "./keyframes";
+import { getNum } from "./trackValue";
 import { tipAtDraw } from "../render/trimPolyline";
 
 function smoothstep(edge0: number, edge1: number, x: number): number {
   if (edge1 <= edge0) return x >= edge1 ? 1 : 0;
   const t2 = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
   return t2 * t2 * (3 - 2 * t2);
-}
-
-function getNum(
-  tracks: Map<string, PropertyTrack>,
-  target: string,
-  time: number,
-  initial: number,
-): number {
-  const tr = tracks.get(target);
-  if (!tr) return initial;
-  return valueAtTime(tr, time, initial);
 }
 
 function getCamera2D(
@@ -30,9 +20,9 @@ function getCamera2D(
   const p = node.initial;
   return {
     id: node.id,
-    centerX: getNum(tracks, `${node.id}.centerX`, time, p.centerX),
-    centerY: getNum(tracks, `${node.id}.centerY`, time, p.centerY),
-    halfWidth: getNum(tracks, `${node.id}.halfWidth`, time, p.halfWidth),
+    centerX: getNum(tracks, propertyTarget(node.id, "centerX"), time, p.centerX),
+    centerY: getNum(tracks, propertyTarget(node.id, "centerY"), time, p.centerY),
+    halfWidth: getNum(tracks, propertyTarget(node.id, "halfWidth"), time, p.halfWidth),
   };
 }
 
@@ -81,7 +71,12 @@ function leadTip(
 
   const epsT = 1 / 30;
   const tPrev = Math.max(0, tNow - epsT);
-  const drawPrev = getNum(vctx.tracks, `${vctx.plotId}.draw`, tPrev, vctx.initialDraw);
+  const drawPrev = getNum(
+    vctx.tracks,
+    propertyTarget(vctx.plotId, "draw"),
+    tPrev,
+    vctx.initialDraw,
+  );
   const dP = Math.max(0, Math.min(1, drawPrev));
   const prev = tipAtDraw(poly, dP);
   const maxB = 2.2;
@@ -177,7 +172,7 @@ export function resolveCameraWithFollow(
     const uSpan = (tau * (n - 1 - j)) / Math.max(1, n - 1);
     const u = Math.max(0, Math.min(duration, t - uSpan));
     const baseU = getCamera2D(node, tracks, u);
-    const drawU = getNum(tracks, `${plotId}.draw`, u, plotInitialDraw);
+    const drawU = getNum(tracks, propertyTarget(plotId, "draw"), u, plotInitialDraw);
     const dU = Math.max(0, Math.min(1, drawU));
     const rU = smoothstep(0, p.followRampDrawMin ?? 0.06, dU);
     const wBase = followWeight * rU * followDrawEndFalloff(dU, falloffStart);
