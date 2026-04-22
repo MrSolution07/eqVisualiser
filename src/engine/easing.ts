@@ -13,8 +13,7 @@ function bezierY(y1: number, y2: number, t: number): number {
 
 const EPS = 1e-5;
 
-export function easeCubicBezier(x: number, b: CubicBezier = DEFAULT_EASING): number 
-{
+export function easeCubicBezier(x: number, b: CubicBezier = DEFAULT_EASING): number {
   const [x1, y1, x2, y2] = b;
   if (x <= 0) return 0;
   if (x >= 1) return 1;

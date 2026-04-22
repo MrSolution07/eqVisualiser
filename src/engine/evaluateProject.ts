@@ -7,11 +7,26 @@ import type { Polyline2D } from "../core/math/samplePlot";
 import { analyzePeriodicity } from "../core/math/analyzePeriodicity";
 import { collectTracks } from "./timelineUtils";
 import { computeCameraEnvelope, CAMERA_PREVIEW_ASPECT } from "./cameraEnvelope";
-import { computeTimelineUnionSampling, functionPlotSamplingKey, computeTimelineUnionSampling2D, implicitPlotSamplingKey } from "./plotSampling";
+import {
+  computeTimelineUnionSampling,
+  functionPlotSamplingKey,
+  computeTimelineUnionSampling2D,
+  implicitPlotSamplingKey,
+} from "./plotSampling";
 import { resolveCameraWithFollow } from "./cameraFollow";
-import type { RenderStateV1, ResolvedCamera2D, ResolvedPlot2D, ResolvedEquation } from "./renderState";
+import type {
+  RenderStateV1,
+  ResolvedCamera2D,
+  ResolvedPlot2D,
+  ResolvedEquation,
+} from "./renderState";
 
-export type { RenderStateV1, ResolvedCamera2D, ResolvedPlot2D, ResolvedEquation } from "./renderState";
+export type {
+  RenderStateV1,
+  ResolvedCamera2D,
+  ResolvedPlot2D,
+  ResolvedEquation,
+} from "./renderState";
 
 function getNum(
   tracks: Map<string, PropertyTrack>,
@@ -24,7 +39,11 @@ function getNum(
   return valueAtTime(tr, t, initial);
 }
 
-function getCamera(node: Extract<SceneNode, { type: "camera2d" }>, tracks: Map<string, PropertyTrack>, t: number): ResolvedCamera2D {
+function getCamera(
+  node: Extract<SceneNode, { type: "camera2d" }>,
+  tracks: Map<string, PropertyTrack>,
+  t: number,
+): ResolvedCamera2D {
   const p = node.initial;
   return {
     id: node.id,
@@ -44,7 +63,11 @@ function plotKey(plot: { kind: string } & Record<string, unknown>): string {
  *
  * Sampling uses **timeline-union** x-extent for function plots so `draw` (arclength) stays stable.
  */
-export function evaluateAtTime(project: ProjectFileV1, tIn: number, plotCache?: Map<string, { hash: string; poly: Polyline2D }>): RenderStateV1 {
+export function evaluateAtTime(
+  project: ProjectFileV1,
+  tIn: number,
+  plotCache?: Map<string, { hash: string; poly: Polyline2D }>,
+): RenderStateV1 {
   const duration = project.timeline.duration;
   const t = Math.max(0, Math.min(tIn, duration));
   const tracks = collectTracks(project.timeline);
@@ -106,7 +129,10 @@ export function evaluateAtTime(project: ProjectFileV1, tIn: number, plotCache?: 
         const bounds = computeTimelineUnionSampling(node.plot, env, periodic);
         ph = functionPlotSamplingKey(node.plot, bounds);
         const cached = plotCache?.get(node.id);
-        poly = cached && cached.hash === ph ? cached.poly : sampleFunctionPlotInRange(node.plot, bounds.xMin, bounds.xMax, bounds.samples);
+        poly =
+          cached && cached.hash === ph
+            ? cached.poly
+            : sampleFunctionPlotInRange(node.plot, bounds.xMin, bounds.xMax, bounds.samples);
         if (plotCache) plotCache.set(node.id, { hash: ph, poly });
       } else if (node.plot.kind === "implicit") {
         let env = envelopes[node.cameraId];
@@ -138,7 +164,15 @@ export function evaluateAtTime(project: ProjectFileV1, tIn: number, plotCache?: 
         poly =
           cached && cached.hash === ph
             ? cached.poly
-            : sampleImplicitPlotInRange(node.plot, b2.xMin, b2.xMax, b2.yMin, b2.yMax, b2.nx, b2.ny);
+            : sampleImplicitPlotInRange(
+                node.plot,
+                b2.xMin,
+                b2.xMax,
+                b2.yMin,
+                b2.yMax,
+                b2.nx,
+                b2.ny,
+              );
         if (plotCache) plotCache.set(node.id, { hash: ph, poly });
       } else {
         ph = plotKey(node.plot as unknown as { kind: string } & Record<string, unknown>);

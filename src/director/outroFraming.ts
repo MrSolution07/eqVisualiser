@@ -3,7 +3,10 @@ import { analyzePeriodicity } from "../core/math/analyzePeriodicity";
 import { sampleFunctionPlotInRange } from "../core/math/samplePlot";
 import { sampleImplicitPlotInRange } from "../core/math/implicitPlot";
 import { computeCameraEnvelope } from "../engine/cameraEnvelope";
-import { computeTimelineUnionSampling, computeTimelineUnionSampling2D } from "../engine/plotSampling";
+import {
+  computeTimelineUnionSampling,
+  computeTimelineUnionSampling2D,
+} from "../engine/plotSampling";
 
 /** Match typical canvas aspect for framed halfWidth (world units per half screen width; view height 2*halfW/aspect). */
 const PREVIEW_ASPECT = 16 / 9;
@@ -24,7 +27,10 @@ export function computeHeroOutroFraming(
   if (!cam || cam.type !== "camera2d" || !plotN || plotN.type !== "plot2d") {
     return null;
   }
-  const p: ProjectFileV1 = { ...project, timeline: { ...project.timeline, duration: compositionDuration } };
+  const p: ProjectFileV1 = {
+    ...project,
+    timeline: { ...project.timeline, duration: compositionDuration },
+  };
   const env = computeCameraEnvelope(p, cam.id, cam.initial, compositionDuration);
   let poly;
   if (plotN.plot.kind === "function") {

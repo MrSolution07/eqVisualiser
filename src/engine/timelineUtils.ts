@@ -17,7 +17,10 @@ export function collectTracks(timeline: TimelineV1): Map<string, PropertyTrack> 
   return m;
 }
 
-export function keyframeTimesForTargets(tracks: Map<string, PropertyTrack>, targets: string[]): number[] {
+export function keyframeTimesForTargets(
+  tracks: Map<string, PropertyTrack>,
+  targets: string[],
+): number[] {
   const s = new Set<number>();
   for (const target of targets) {
     const tr = tracks.get(target);

@@ -42,15 +42,38 @@ function MobileChromeInner({
       <header className={`${chromeClass} mobileChrome__top`}>
         <span className="mobileChrome__title">{title}</span>
         <div className="mobileChrome__topActions">
-          <button type="button" className="btn btn--icon" aria-expanded={menuOpen} aria-haspopup="true" onClick={() => setMenuOpen(!menuOpen)}>
+          <button
+            type="button"
+            className="btn btn--icon"
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
             ⋯
           </button>
           {menuOpen ? (
             <div className="mobileMenu" role="menu">
-              <button type="button" className="mobileMenu__item" role="menuitem" onClick={() => { onExport(); setMenuOpen(false); }} disabled={exporting || playing}>
+              <button
+                type="button"
+                className="mobileMenu__item"
+                role="menuitem"
+                onClick={() => {
+                  onExport();
+                  setMenuOpen(false);
+                }}
+                disabled={exporting || playing}
+              >
                 {exporting ? "Exporting…" : "Export video"}
               </button>
-              <button type="button" className="mobileMenu__item" role="menuitem" onClick={() => { onResetStory(); setMenuOpen(false); }}>
+              <button
+                type="button"
+                className="mobileMenu__item"
+                role="menuitem"
+                onClick={() => {
+                  onResetStory();
+                  setMenuOpen(false);
+                }}
+              >
                 Reset story
               </button>
               <div className="mobileMenu__meta" role="note">
@@ -84,7 +107,12 @@ function MobileChromeInner({
         <button type="button" className="btn btn--lg" onClick={onRestart} disabled={exporting}>
           Restart
         </button>
-        <button type="button" className="btn btn--lg btn--primary" onClick={onOpenEquation} disabled={exporting}>
+        <button
+          type="button"
+          className="btn btn--lg btn--primary"
+          onClick={onOpenEquation}
+          disabled={exporting}
+        >
           Equation
         </button>
       </nav>

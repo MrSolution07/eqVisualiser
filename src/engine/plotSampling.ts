@@ -31,7 +31,11 @@ function quantizeStep(maxHalfWidth: number): number {
   return Math.max(QUANT_STEP_MIN, maxHalfWidth / 24);
 }
 
-export function quantizeExtent(xMin: number, xMax: number, step: number): { xMin: number; xMax: number } {
+export function quantizeExtent(
+  xMin: number,
+  xMax: number,
+  step: number,
+): { xMin: number; xMax: number } {
   return {
     xMin: Math.floor(xMin / step) * step,
     xMax: Math.ceil(xMax / step) * step,
@@ -109,7 +113,11 @@ const K2_Y_MARGIN = 0.12;
  * 2D world window for F(x,y)=0, union of scene box and full camera view (timeline union),
  * plus margins. `aspect` is the fixed preview width/height (same as [`CAMERA_PREVIEW_ASPECT`]).
  */
-export function computeTimelineUnionSampling2D(def: ImplicitPlotDef, envelope: CameraEnvelope2D, aspect: number = CAMERA_PREVIEW_ASPECT): SamplingBounds2D {
+export function computeTimelineUnionSampling2D(
+  def: ImplicitPlotDef,
+  envelope: CameraEnvelope2D,
+  aspect: number = CAMERA_PREVIEW_ASPECT,
+): SamplingBounds2D {
   const hw = envelope.maxHalfWidth;
   const marginLeft = K_LEFT_MARGIN_HW * hw;
   const marginRight = K_RIGHT_MARGIN_HW * hw;
@@ -130,7 +138,7 @@ export function computeTimelineUnionSampling2D(def: ImplicitPlotDef, envelope: C
   const qx = quantizeExtent(xMin, xMax, step);
   xMin = qx.xMin;
   xMax = qx.xMax;
-  const stepY = Math.max(QUANT_STEP_MIN, (hw / aspect) / 24);
+  const stepY = Math.max(QUANT_STEP_MIN, hw / aspect / 24);
   const qy = quantizeExtent(yMin, yMax, stepY);
   yMin = qy.xMin;
   yMax = qy.xMax;
@@ -142,17 +150,26 @@ export function computeTimelineUnionSampling2D(def: ImplicitPlotDef, envelope: C
   const ratioW = Math.abs(baseW) > 1e-9 ? newW / baseW : 1;
   const ratioH = Math.abs(baseH) > 1e-9 ? newH / baseH : 1;
   const scaleR = Math.max(1, Math.sqrt(ratioW * ratioH));
-  const cellBudget = Math.min(MAX_CELLS, Math.max(64 * 64, Math.min(def.samples * def.samples, 1_000_000) * scaleR));
+  const cellBudget = Math.min(
+    MAX_CELLS,
+    Math.max(64 * 64, Math.min(def.samples * def.samples, 1_000_000) * scaleR),
+  );
 
   const dx = xMax - xMin;
   const dy = yMax - yMin;
   let nx = MIN_IMPLICIT_GRID;
   let ny = MIN_IMPLICIT_GRID;
   if (dx > 1e-12 && dy > 1e-12) {
-    ny = Math.max(MIN_IMPLICIT_GRID, Math.min(MAX_IMPLICIT_GRID, Math.floor(Math.sqrt((cellBudget * dy) / dx))));
+    ny = Math.max(
+      MIN_IMPLICIT_GRID,
+      Math.min(MAX_IMPLICIT_GRID, Math.floor(Math.sqrt((cellBudget * dy) / dx))),
+    );
     nx = Math.max(MIN_IMPLICIT_GRID, Math.min(MAX_IMPLICIT_GRID, Math.floor(cellBudget / ny)));
   } else {
-    const n0 = Math.max(MIN_IMPLICIT_GRID, Math.min(MAX_IMPLICIT_GRID, Math.floor(Math.sqrt(cellBudget))));
+    const n0 = Math.max(
+      MIN_IMPLICIT_GRID,
+      Math.min(MAX_IMPLICIT_GRID, Math.floor(Math.sqrt(cellBudget))),
+    );
     nx = n0;
     ny = n0;
   }
@@ -164,7 +181,11 @@ export function computeTimelineUnionSampling2D(def: ImplicitPlotDef, envelope: C
   return { xMin, xMax, yMin, yMax, nx, ny };
 }
 
-export function implicitPlotSamplingKey(def: ImplicitPlotDef, bounds: SamplingBounds2D, aspect: number = CAMERA_PREVIEW_ASPECT): string {
+export function implicitPlotSamplingKey(
+  def: ImplicitPlotDef,
+  bounds: SamplingBounds2D,
+  aspect: number = CAMERA_PREVIEW_ASPECT,
+): string {
   return JSON.stringify({
     kind: def.kind,
     expression: def.expression,

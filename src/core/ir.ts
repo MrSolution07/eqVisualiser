@@ -172,5 +172,10 @@ export interface ProjectFileV1 {
 export function isProjectFileV1(x: unknown): x is ProjectFileV1 {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
-  return o.version === 1 && Array.isArray(o.scene) && o.timeline != null && typeof o.timeline === "object";
+  return (
+    o.version === 1 &&
+    Array.isArray(o.scene) &&
+    o.timeline != null &&
+    typeof o.timeline === "object"
+  );
 }

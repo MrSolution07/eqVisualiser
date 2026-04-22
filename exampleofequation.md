@@ -32,7 +32,7 @@ Functions where behavior is naturally **unbounded**, **repeats forever**, or **n
 
 ## Note for plotting
 
-On any **finite** `[xMin, xMax]` the curve is clipped. For a *feeling* of infinity, use a **wide x-range** with `sin` / `cos` / `tan` or `x*sin(x)` so motion keeps going when you zoom or pan.
+On any **finite** `[xMin, xMax]` the curve is clipped. For a _feeling_ of infinity, use a **wide x-range** with `sin` / `cos` / `tan` or `x*sin(x)` so motion keeps going when you zoom or pan.
 
 ## Quick “demo” subset
 
@@ -44,5 +44,4 @@ Short list that tends to look good in cinematic plots:
 - `sin(x^2)`
 - `1/(1 + x^2)`
 - `exp(-x) * sin(3*x)`
-- (x^2 + y^2)^2 = 50*(x^2 - y^2) 
-
+- (x^2 + y^2)^2 = 50\*(x^2 - y^2)

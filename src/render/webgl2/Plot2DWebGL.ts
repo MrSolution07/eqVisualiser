@@ -15,7 +15,11 @@ export class Plot2DWebGL {
   private vaoLine: WebGLVertexArrayObject;
 
   constructor(private canvas: HTMLCanvasElement) {
-    const gl = canvas.getContext("webgl2", { antialias: true, alpha: false, premultipliedAlpha: false });
+    const gl = canvas.getContext("webgl2", {
+      antialias: true,
+      alpha: false,
+      premultipliedAlpha: false,
+    });
     if (!gl) throw new Error("WebGL2 required");
     this.gl = gl;
     gl.enable(gl.BLEND);
@@ -66,7 +70,10 @@ export class Plot2DWebGL {
     const halfW = cam.halfWidth;
     const halfH = cam.halfWidth / aspect;
 
-    const parseRgba = (s: string, fallback: [number, number, number, number]): [number, number, number, number] => {
+    const parseRgba = (
+      s: string,
+      fallback: [number, number, number, number],
+    ): [number, number, number, number] => {
       const rgba = /^rgba?\(([^)]+)\)/i.exec(s);
       if (!rgba) return fallback;
       const parts = rgba[1]!.split(",").map((x) => parseFloat(x.trim()));
@@ -87,9 +94,12 @@ export class Plot2DWebGL {
       ? (() => {
           const h = state.style.curve.replace("#", "");
           const v = h.length === 6 ? h : "66eeff";
-          return [parseInt(v.slice(0, 2), 16) / 255, parseInt(v.slice(2, 4), 16) / 255, parseInt(v.slice(4, 6), 16) / 255, 1] as [
-            number, number, number, number
-          ];
+          return [
+            parseInt(v.slice(0, 2), 16) / 255,
+            parseInt(v.slice(2, 4), 16) / 255,
+            parseInt(v.slice(4, 6), 16) / 255,
+            1,
+          ] as [number, number, number, number];
         })()
       : parseRgba(state.style.curve, [0.4, 0.9, 1, 1]);
 
@@ -131,7 +141,14 @@ export class Plot2DWebGL {
     this.uploadAndDrawLines(ax, cx, cy, halfW, halfH, axis);
   }
 
-  private uploadAndDrawLines(data: Float32Array, cx: number, cy: number, halfW: number, halfH: number, col: [number, number, number, number]): void {
+  private uploadAndDrawLines(
+    data: Float32Array,
+    cx: number,
+    cy: number,
+    halfW: number,
+    halfH: number,
+    col: [number, number, number, number],
+  ): void {
     const gl = this.gl;
     gl.bindVertexArray(this.vaoLine);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.lineBuffer);

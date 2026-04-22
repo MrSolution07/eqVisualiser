@@ -1,4 +1,8 @@
-export function compileShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
+export function compileShader(
+  gl: WebGL2RenderingContext,
+  type: number,
+  source: string,
+): WebGLShader {
   const s = gl.createShader(type);
   if (!s) throw new Error("createShader");
   gl.shaderSource(s, source);

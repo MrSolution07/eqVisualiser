@@ -1,13 +1,38 @@
 import { create, all, type MathNode, type FunctionNode, type SymbolNode } from "mathjs";
-import type { ParametricPlotDef, FunctionPlotDef, ImplicitPlotDef, PlotDefinition, ProjectFileV1 } from "../ir";
+import type {
+  ParametricPlotDef,
+  FunctionPlotDef,
+  ImplicitPlotDef,
+  PlotDefinition,
+  ProjectFileV1,
+} from "../ir";
 import { normalizeFunctionPlotExpression } from "./normalizeExpression";
 
 const math = create(all);
 
-const CONSTANTS = new Set(["e", "pi", "i", "true", "false", "null", "NaN", "phi", "SQRT1_2", "SQRT2", "Inf", "LN2", "LN10", "LOG2E", "LOG10E", "version"]);
+const CONSTANTS = new Set([
+  "e",
+  "pi",
+  "i",
+  "true",
+  "false",
+  "null",
+  "NaN",
+  "phi",
+  "SQRT1_2",
+  "SQRT2",
+  "Inf",
+  "LN2",
+  "LN10",
+  "LOG2E",
+  "LOG10E",
+  "version",
+]);
 
 const fnWhitelist = new Set(
-  "abs acos acosh asin asinh atan atan2 atanh cbrt ceil cos cosh cot csc sec exp floor log log10 log2 max min mod pow round sign sin sinh sqrt square tan tanh re im arg not bitAnd add subtract multiply divide isNaN isNegative isInteger isZero isPositive isComplex".split(" "),
+  "abs acos acosh asin asinh atan atan2 atanh cbrt ceil cos cosh cot csc sec exp floor log log10 log2 max min mod pow round sign sin sinh sqrt square tan tanh re im arg not bitAnd add subtract multiply divide isNaN isNegative isInteger isZero isPositive isComplex".split(
+    " ",
+  ),
 );
 
 function assertSafeNode(node: MathNode, freeVars: Set<string>): void {
@@ -34,7 +59,18 @@ function assertSafeNode(node: MathNode, freeVars: Set<string>): void {
       if (s === "e" || s === "pi") return;
       throw new Error(`Unknown symbol: ${s}`);
     }
-    if (n.type === "ConstantNode" || n.type === "AccessNode" || n.type === "IndexNode" || n.type === "ObjectNode" || n.type === "ArrayNode" || n.type === "RangeNode" || n.type === "MatrixNode" || n.type === "ParenthesisNode" || n.type === "ConditionalNode" || n.type === "OperatorNode") {
+    if (
+      n.type === "ConstantNode" ||
+      n.type === "AccessNode" ||
+      n.type === "IndexNode" ||
+      n.type === "ObjectNode" ||
+      n.type === "ArrayNode" ||
+      n.type === "RangeNode" ||
+      n.type === "MatrixNode" ||
+      n.type === "ParenthesisNode" ||
+      n.type === "ConditionalNode" ||
+      n.type === "OperatorNode"
+    ) {
       // allow
     }
   });
@@ -56,7 +92,10 @@ const FUNCTION_PLOT_VARS = new Set(["x", "t"]);
 
 const IMPLICIT_PLOT_VARS = new Set(["x", "y"]);
 
-export function compileImplicitPlot(expression: string): { compile: () => (x: number, y: number) => number; raw: string } {
+export function compileImplicitPlot(expression: string): {
+  compile: () => (x: number, y: number) => number;
+  raw: string;
+} {
   const node = math.parse(expression);
   assertSafeNode(node, IMPLICIT_PLOT_VARS);
   const c = node.compile() as { evaluate: (s: Record<string, number>) => unknown };
@@ -81,7 +120,10 @@ export function tryCompileScalarToNumber(expression: string): number | null {
   }
 }
 
-export function compileFunctionPlot(def: FunctionPlotDef): { compile: () => (x: number) => number; raw: string } {
+export function compileFunctionPlot(def: FunctionPlotDef): {
+  compile: () => (x: number) => number;
+  raw: string;
+} {
   const normalized = normalizeFunctionPlotExpression(def.expression);
   const node = math.parse(normalized);
   assertSafeNode(node, FUNCTION_PLOT_VARS);

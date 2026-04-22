@@ -57,7 +57,8 @@ export function tracksForShots(
 
   const period = ctx?.period ?? null;
   const connectDeltaX = period != null ? Math.min(period * 2.35, 16) : 1.2;
-  const outroTargetHw = period != null ? Math.max(defaultHw * 1.62, period * 1.78) : defaultHw * 1.38;
+  const outroTargetHw =
+    period != null ? Math.max(defaultHw * 1.62, period * 1.78) : defaultHw * 1.38;
 
   const storyEnd = compositionDuration ?? project.timeline.duration;
 
@@ -152,8 +153,16 @@ export function tracksForShots(
           cyKf.push({ t: storyEnd, value: heroOutro.centerY, easing: "linear" });
         }
         outroTracks.push(
-          { id: `cam-${s.at}-outro-cx`, target: `${s.cameraId ?? cameraId}.centerX`, keyframes: cxKf },
-          { id: `cam-${s.at}-outro-cy`, target: `${s.cameraId ?? cameraId}.centerY`, keyframes: cyKf },
+          {
+            id: `cam-${s.at}-outro-cx`,
+            target: `${s.cameraId ?? cameraId}.centerX`,
+            keyframes: cxKf,
+          },
+          {
+            id: `cam-${s.at}-outro-cy`,
+            target: `${s.cameraId ?? cameraId}.centerY`,
+            keyframes: cyKf,
+          },
         );
       }
 

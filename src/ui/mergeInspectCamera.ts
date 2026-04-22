@@ -10,7 +10,10 @@ export type InspectOffset = {
   zoom: number;
 };
 
-export function mergeInspectIntoRenderState(state: RenderStateV1, inspect: InspectOffset | null): RenderStateV1 {
+export function mergeInspectIntoRenderState(
+  state: RenderStateV1,
+  inspect: InspectOffset | null,
+): RenderStateV1 {
   if (!inspect || (inspect.panX === 0 && inspect.panY === 0 && inspect.zoom === 1)) {
     return state;
   }

@@ -230,7 +230,9 @@
 /* —— Mobile chrome —— */
 
 .mobileChrome {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 
 .mobileChrome--visible {

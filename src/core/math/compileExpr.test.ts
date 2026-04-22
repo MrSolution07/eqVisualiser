@@ -48,8 +48,12 @@ describe("compile", () => {
   it("getFunctionPlotCompileError reports parse / symbol issues; null when valid", () => {
     const base = { kind: "function" as const, xMin: -1, xMax: 1, samples: 16 };
     expect(getFunctionPlotCompileError({ ...base, expression: "sin(x)" })).toBeNull();
-    expect(getFunctionPlotCompileError({ ...base, expression: "x^2 + y^2 = 25" })?.length).toBeGreaterThan(0);
-    expect(getFunctionPlotCompileError({ ...base, expression: "x^2 + y^2 - 25" })).toMatch(/Unknown symbol: y/);
+    expect(
+      getFunctionPlotCompileError({ ...base, expression: "x^2 + y^2 = 25" })?.length,
+    ).toBeGreaterThan(0);
+    expect(getFunctionPlotCompileError({ ...base, expression: "x^2 + y^2 - 25" })).toMatch(
+      /Unknown symbol: y/,
+    );
   });
 
   it("getPlotCompileError for implicit; compileImplicitPlot F(x,y)", () => {

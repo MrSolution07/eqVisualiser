@@ -60,7 +60,12 @@ export function exponentialSmoothWeights(sampleCount: number): number[] {
   return w.map((x) => x / sum);
 }
 
-type VelocityContext = { plotId: string; tracks: Map<string, PropertyTrack>; initialDraw: number; duration: number };
+type VelocityContext = {
+  plotId: string;
+  tracks: Map<string, PropertyTrack>;
+  initialDraw: number;
+  duration: number;
+};
 
 function leadTip(
   _p: Camera2DNode["initial"],

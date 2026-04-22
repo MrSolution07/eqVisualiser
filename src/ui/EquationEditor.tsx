@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type ReactElement,
-} from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { validateDraftExpression } from "../core/math/validateDraftExpression";
 import type { ProjectFileV1 } from "../core/ir";
 import { friendlyExprError } from "./friendlyExprError";
@@ -21,7 +14,9 @@ function loadRecent(): string[] {
     const raw = sessionStorage.getItem(RECENT_KEY);
     if (!raw) return [];
     const v = JSON.parse(raw) as unknown;
-    return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string").slice(0, RECENT_MAX) : [];
+    return Array.isArray(v)
+      ? v.filter((x): x is string => typeof x === "string").slice(0, RECENT_MAX)
+      : [];
   } catch {
     return [];
   }
@@ -98,7 +93,9 @@ export function EquationEditor({
     <div className={`equationEditor equationEditor--${variant}`}>
       <h2 className="equationEditor__title">Expression</h2>
       <form className="field" onSubmit={onSubmit}>
-        <label htmlFor={textareaId}>Formula (mathjs syntax: explicit y = f(x), implicit with =, or constants)</label>
+        <label htmlFor={textareaId}>
+          Formula (mathjs syntax: explicit y = f(x), implicit with =, or constants)
+        </label>
         <textarea
           ref={textareaRef}
           id={textareaId}
@@ -120,11 +117,14 @@ export function EquationEditor({
             {friendlyExprError(committedError)}
             <span className="exprErrorHint">
               {" "}
-              For a circle you can use <code>x^2 + y^2 = 25</code> or <code>sqrt(25 - x^2)</code> for a half.
+              For a circle you can use <code>x^2 + y^2 = 25</code> or <code>sqrt(25 - x^2)</code>{" "}
+              for a half.
             </span>
           </p>
         ) : null}
-        <div className="hint">Apply updates the plot. Reset story reapplies the default camera and timeline.</div>
+        <div className="hint">
+          Apply updates the plot. Reset story reapplies the default camera and timeline.
+        </div>
         <div className="equationEditor__actions">
           <button type="submit" className="btn btn--primary">
             Apply

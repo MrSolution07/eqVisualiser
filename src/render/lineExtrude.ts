@@ -21,12 +21,18 @@ export function extrudeLineToTriangles(points: Float32Array, lineWidth: number):
     const oay = ny * half;
     // quad: p0-o, p0+o, p1+o, p1-o
     out.push(
-      p0x - oax, p0y - oay,
-      p0x + oax, p0y + oay,
-      p1x + oax, p1y + oay,
-      p0x - oax, p0y - oay,
-      p1x + oax, p1y + oay,
-      p1x - oax, p1y - oay,
+      p0x - oax,
+      p0y - oay,
+      p0x + oax,
+      p0y + oay,
+      p1x + oax,
+      p1y + oay,
+      p0x - oax,
+      p0y - oay,
+      p1x + oax,
+      p1y + oay,
+      p1x - oax,
+      p1y - oay,
     );
   }
   return new Float32Array(out);

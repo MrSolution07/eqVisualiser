@@ -6,30 +6,27 @@ The line along the **x-axis** is the **intentional fallback** in [`src/core/math
 
 ## Root causes
 
-| Input | What happens |
-|-------|----------------|
-| `x^2 + y^2 = 25` | `math.parse` **throws** (mathjs: `=` is assignment; invalid in this form). Caught; fallback line. |
+| Input                         | What happens                                                                                                                                                          |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `x^2 + y^2 = 25`              | `math.parse` **throws** (mathjs: `=` is assignment; invalid in this form). Caught; fallback line.                                                                     |
 | `x^2 + y^2 - 25` (or any `y`) | Parse succeeds, but [`assertSafeNode`](src/core/math/compileExpr.ts) allows only `x` and `t` as free variables. **`y` → "Unknown symbol: y"**; caught; same fallback. |
 
-The app is **y = f(x)** only. Implicit curves `F(x,y)=0` are **not** implemented.
+**Current product behavior:** implicit curves `F(x,y)=0` **are** implemented for `plot2d` nodes of kind `implicit` (marching squares in [`src/core/math/implicitPlot.ts`](../src/core/math/implicitPlot.ts)); see [README](../README.md). The failure above happens when the expression is still treated as a **function** plot path (compile as `y=f(x)`), e.g. before successful implicit classification or when the editor applies a function-only compile check.
 
 ## Fix (implemented in codebase)
 
 1. **Export a validator** in [`src/core/math/compileExpr.ts`](src/core/math/compileExpr.ts):
-
    - `getFunctionPlotCompileError(def: FunctionPlotDef): string | null` — `try { compileFunctionPlot(def); return null } catch (e) { return e instanceof Error ? e.message : String(e) }`
 
 2. **Zustand store** [`src/store.ts`](src/store.ts):
-
    - Add `expressionError: string | null` to the store type and initial state.
    - In `setExpression`, after building the new scene, resolve the `function` plot node and set `expressionError: getFunctionPlotCompileError({ kind: "function", expression, ...plot })`.
    - In `applyStoryboard`, after `defaultStoryboard(s.project)`, recompute `expressionError` from the function plot in the new project.
    - Initial state: set `expressionError` from the default function plot, or `null` if the demo expression always compiles.
 
 3. **UI** [`src/App.tsx`](src/App.tsx):
-
    - `const expressionError = useStore(s => s.expressionError)`.
-   - Below the textarea, if `expressionError`, render a dedicated element (e.g. `<p className="exprError" role="alert">` with the text). Short hint: *Function plots are y in terms of x only. For a circle, use* `sqrt(25-x^2)` *on |x|≤5, or a parametric plot in the scene.*
+   - Below the textarea, if `expressionError`, render a dedicated element (e.g. `<p className="exprError" role="alert">` with the text). Short hint: _Function plots are y in terms of x only. For a circle, use_ `sqrt(25-x^2)` _on |x|≤5, or a parametric plot in the scene._
 
 4. **Styles** [`src/App.css`](src/App.css): `.exprError` — readable contrast (e.g. error/signal color, small type).
 
@@ -41,7 +38,7 @@ The app is **y = f(x)** only. Implicit curves `F(x,y)=0` are **not** implemented
 
 - The original conclusion (“fallback polyline at y=0”) is **correct and complete** for the symptom.
 - **Product gap:** silent failure; the fix is **user-visible error state**, not changing the math model.
-- **Out of scope for this fix:** parametric/implicit plot UI; optional future work.
+- **Out of scope for this fix:** broader implicit/parametric UX in the sidebar; optional future work.
 - **README:** one sentence under “Expression” is optional; avoid duplicating this doc in full in README if the in-app error is clear.
 
 ## Verification

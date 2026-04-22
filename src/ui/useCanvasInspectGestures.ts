@@ -131,8 +131,7 @@ export function useCanvasInspectGestures({
     };
 
     const onUp = (e: PointerEvent) => {
-      const doTap =
-        playing && tapCandidate && pointers.size === 1 && pointers.has(e.pointerId);
+      const doTap = playing && tapCandidate && pointers.size === 1 && pointers.has(e.pointerId);
       let tapOk = false;
       if (doTap && tapCandidate) {
         const dt = performance.now() - tapCandidate.t;

@@ -27,7 +27,12 @@ export interface CameraEnvelope2D {
   maxViewTop: number;
 }
 
-function getNum(tracks: Map<string, PropertyTrack>, target: string, t: number, initial: number): number {
+function getNum(
+  tracks: Map<string, PropertyTrack>,
+  target: string,
+  t: number,
+  initial: number,
+): number {
   const tr = tracks.get(target);
   if (!tr) return initial;
   return valueAtTime(tr, t, initial);

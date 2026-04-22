@@ -1,4 +1,5 @@
 import type { FunctionPlotDef, PlotDefinition, ImplicitPlotDef } from "../ir";
+import { buildCumLen } from "./buildCumLen";
 import { compileFunctionPlot, compileParametric } from "./compileExpr";
 import { sampleImplicitPlotInRange } from "./implicitPlot";
 
@@ -9,19 +10,7 @@ export interface Polyline2D {
   totalLen: number;
 }
 
-export function buildCumLen(points: Float32Array): { cumLen: Float32Array; totalLen: number } {
-  const n = points.length / 2;
-  const cumLen = new Float32Array(n);
-  let acc = 0;
-  cumLen[0] = 0;
-  for (let i = 1; i < n; i++) {
-    const dx = points[i * 2] - points[(i - 1) * 2];
-    const dy = points[i * 2 + 1] - points[(i - 1) * 2 + 1];
-    acc += Math.hypot(dx, dy);
-    cumLen[i] = acc;
-  }
-  return { cumLen, totalLen: acc };
-}
+export { buildCumLen } from "./buildCumLen";
 
 function fallbackPolyline(xMin: number, xMax: number): Polyline2D {
   const pts = new Float32Array([xMin, 0, xMax, 0]);
@@ -29,17 +18,22 @@ function fallbackPolyline(xMin: number, xMax: number): Polyline2D {
   return { points: pts, cumLen, totalLen };
 }
 
-/**
- * Sample y=f(x) on [xMin,xMax]; drops non-finite y so tan spikes do not poison the strip.
- * On compile/parse errors, returns a short horizontal segment instead of throwing (keeps UI alive).
- */
-/** Fallback grid when 2D timeline-union is not used (e.g. tests). */
+/** Fallback grid resolution for implicit plots when 2D timeline-union is not used (e.g. tests). */
 function defaultImplicitGridN(def: ImplicitPlotDef): number {
   const s = def.samples;
   return Math.max(8, Math.min(256, Math.floor(Math.sqrt(Math.max(64, s)))));
 }
 
-export function sampleFunctionPlotInRange(def: FunctionPlotDef, xMin: number, xMax: number, samples: number): Polyline2D {
+/**
+ * Sample y=f(x) on [xMin,xMax]; drops non-finite y so tan spikes do not poison the strip.
+ * On compile/parse errors, returns a short horizontal segment instead of throwing (keeps UI alive).
+ */
+export function sampleFunctionPlotInRange(
+  def: FunctionPlotDef,
+  xMin: number,
+  xMax: number,
+  samples: number,
+): Polyline2D {
   let compileFn: () => (x: number) => number;
   try {
     compileFn = compileFunctionPlot(def).compile;

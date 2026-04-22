@@ -41,7 +41,9 @@ export async function exportProjectVideo(
   }
   return new Promise((resolve, reject) => {
     const stream = canvas.captureStream(0);
-    const track = stream.getVideoTracks()[0] as (MediaStreamTrack & { requestFrame?: () => void }) | undefined;
+    const track = stream.getVideoTracks()[0] as
+      | (MediaStreamTrack & { requestFrame?: () => void })
+      | undefined;
     const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6_000_000 });
     const chunks: Blob[] = [];
     rec.ondataavailable = (e) => {

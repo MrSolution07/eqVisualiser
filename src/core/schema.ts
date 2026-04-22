@@ -64,6 +64,9 @@ export function createDefaultProject(): ProjectFileV1 {
   return defaultStoryboard(p);
 }
 
-export function projectWithTimeline(project: ProjectFileV1, next: ProjectFileV1["timeline"]): ProjectFileV1 {
+export function projectWithTimeline(
+  project: ProjectFileV1,
+  next: ProjectFileV1["timeline"],
+): ProjectFileV1 {
   return { ...project, timeline: next };
 }

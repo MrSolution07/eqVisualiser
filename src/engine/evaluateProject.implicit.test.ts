@@ -28,7 +28,10 @@ function projectWithImplicitCircle(): ProjectFileV1 {
 describe("evaluateAtTime implicit plot", () => {
   it("returns stable plotHash for cache when t changes", () => {
     const p = projectWithImplicitCircle();
-    const cache = new Map<string, { hash: string; poly: import("../core/math/samplePlot").Polyline2D }>();
+    const cache = new Map<
+      string,
+      { hash: string; poly: import("../core/math/samplePlot").Polyline2D }
+    >();
     const a = evaluateAtTime(p, 0, cache);
     const h0 = a.plots["main-plot"]?.plotHash;
     const b = evaluateAtTime(p, 3, cache);

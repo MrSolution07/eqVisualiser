@@ -103,9 +103,13 @@ export function splitTopLevelEqual(s: string): { left: string; right: string } |
   return { left, right };
 }
 
-function carryBounds(
-  base: PlotDefinition,
-): { xMin: number; xMax: number; yMin: number; yMax: number; samples: number } {
+function carryBounds(base: PlotDefinition): {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+  samples: number;
+} {
   if (base.kind === "function") {
     return {
       xMin: base.xMin,
@@ -139,7 +143,10 @@ function carryBounds(
  * @param input — raw user text
  * @param base — previous plot to preserve x/y windows and sample budget when kind changes
  */
-export function plotDefinitionFromUserInput(input: string, base: PlotDefinition): FunctionPlotDef | ImplicitPlotDef {
+export function plotDefinitionFromUserInput(
+  input: string,
+  base: PlotDefinition,
+): FunctionPlotDef | ImplicitPlotDef {
   const b = carryBounds(base);
   const s0 = normalizeLatexSurface(input);
 
@@ -175,13 +182,25 @@ export function plotDefinitionFromUserInput(input: string, base: PlotDefinition)
 
   const scalarS0 = tryCompileScalarToNumber(s0);
   if (scalarS0 != null) {
-    return { kind: "function", expression: String(scalarS0), xMin: b.xMin, xMax: b.xMax, samples: b.samples };
+    return {
+      kind: "function",
+      expression: String(scalarS0),
+      xMin: b.xMin,
+      xMax: b.xMax,
+      samples: b.samples,
+    };
   }
 
   const s1 = normalizeFunctionPlotExpression(input);
   const scalarS1 = tryCompileScalarToNumber(s1);
   if (scalarS1 != null) {
-    return { kind: "function", expression: String(scalarS1), xMin: b.xMin, xMax: b.xMax, samples: b.samples };
+    return {
+      kind: "function",
+      expression: String(scalarS1),
+      xMin: b.xMin,
+      xMax: b.xMax,
+      samples: b.samples,
+    };
   }
 
   if (tryCompileFunctionExpression(s1)) {
@@ -214,4 +233,3 @@ export function plotDefinitionFromUserInput(input: string, base: PlotDefinition)
   // Fallback: keep as function so the UI can show a concrete compile error; prefer normalized explicit form
   return { kind: "function", expression: s1, xMin: b.xMin, xMax: b.xMax, samples: b.samples };
 }
-

@@ -16,9 +16,7 @@ export function mergeKeyframesByTime(frames: TimeKeyframe<number>[]): TimeKeyfra
   for (const kf of sorted) {
     atT.set(kf.t, kf);
   }
-  return [...atT.keys()]
-    .sort((a, b) => a - b)
-    .map((t) => atT.get(t)!);
+  return [...atT.keys()].sort((a, b) => a - b).map((t) => atT.get(t)!);
 }
 
 /**

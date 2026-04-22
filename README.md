@@ -24,16 +24,16 @@ The goal is to treat a graph less like a static plot and more like a **composed 
 
 ### Cinematic behavior (high level)
 
-- **Progressive draw**: the visible stroke is controlled by a normalized `**draw`** property (0…1) on the plot layer, interpreted as progress along **arc length** of the sampled polyline. This produces a continuous “unfolding” line rather than a fade of the whole curve.
-- **Camera**: 2D orthographic-style framing with `**centerX`**, `**centerY**`, and `**halfWidth**` (world units per half-width of the view; larger values show more of the plane—i.e. zoomed out).
+- **Progressive draw**: the visible stroke is controlled by a normalized `**draw`** property (0…1) on the plot layer, interpreted as progress along **arc length\*\* of the sampled polyline. This produces a continuous “unfolding” line rather than a fade of the whole curve.
+- **Camera**: 2D orthographic-style framing with `**centerX`**, `**centerY**`, and `**halfWidth\*\*` (world units per half-width of the view; larger values show more of the plane—i.e. zoomed out).
 - **Easing**: keyframed properties interpolate with **linear** segments or **cubic Bézier** curves (CSS-style `(x1,y1,x2,y2)` control points), similar in spirit to easing in non-linear editors.
 - **Tip follow** (optional on the camera): the camera can **nudge** toward the current draw tip, with clamping and a smooth ramp so follow does not snap when `draw` is near zero.
 - **Periodic-aware sampling**: for many trig-heavy expressions, the engine estimates a period (heuristic AST analysis) and extends the **right** side of the sampling interval so pans and zoom-outs still read as a continuous wave. The **left** side is kept tight to the viewport envelope so the **start of playback** is not an empty frame of off-screen arc length.
-- **Timeline-union sampling**: sampling bounds are fixed over the shot so `**draw`** does not “reshuffle” every frame. For **function** plots, world `**xMin**` / `**xMax**` come from the camera envelope (plus margins and optional periodic extension). For **implicit** plots, the same idea applies in **2D** (`x` and `y` ranges from the union of the camera’s view rect and the plot’s scene box), using a fixed **preview aspect** (16∶9) for vertical extent when the engine has no live canvas size.
+- **Timeline-union sampling**: sampling bounds are fixed over the shot so `**draw`** does not “reshuffle” every frame. For **function** plots, world `**xMin**`/`**xMax**` come from the camera envelope (plus margins and optional periodic extension). For **implicit** plots, the same idea applies in **2D** (`x` and `y` ranges from the union of the camera’s view rect and the plot’s scene box), using a fixed **preview aspect\*\* (16∶9) for vertical extent when the engine has no live canvas size.
 
 ### Video export
 
-- **Export video** renders the composition off-screen with the same `evaluateAtTime` → WebGL path as the preview, then encodes with `**MediaRecorder`** (typically **WebM** with VP8/VP9, depending on the browser).
+- **Export video** renders the composition off-screen with the same `evaluateAtTime` → WebGL path as the preview, then encodes with `**MediaRecorder`** (typically **WebM\*\* with VP8/VP9, depending on the browser).
 - Export uses the timeline **duration** and **fps** from the project; preview and file are intended to match for the same `t`.
 
 ### Rendering stack
@@ -62,14 +62,12 @@ Open the URL Vite prints (usually `http://localhost:5173`). Use the sidebar to e
 
 ### Other scripts
 
-
 | Command           | Purpose                                     |
 | ----------------- | ------------------------------------------- |
 | `npm run dev`     | Start Vite dev server with HMR              |
 | `npm run build`   | Typecheck (`tsc`) and production bundle     |
 | `npm run preview` | Serve the production build locally          |
 | `npm test`        | Run **Vitest** unit tests (non-interactive) |
-
 
 ---
 
@@ -137,7 +135,7 @@ src/
     webCodecsVideo.ts     # Frame loop + MediaRecorder export
 ```
 
-**Data flow in one sentence:** the **timeline** animates numeric properties on **scene nodes**; `evaluateAtTime` samples plots (with envelope-aware bounds), resolves cameras (including follow), and returns a `**RenderStateV1`** that `**Plot2DWebGL**` draws.
+**Data flow in one sentence:** the **timeline** animates numeric properties on **scene nodes**; `evaluateAtTime` samples plots (with envelope-aware bounds), resolves cameras (including follow), and returns a `**RenderStateV1`** that `**Plot2DWebGL\*\*` draws.
 
 ---
 
@@ -146,11 +144,11 @@ src/
 The app is built around `**ProjectFileV1**` (`src/core/ir.ts`):
 
 - **Scene nodes**
-  - `**camera2d`**: initial pan/zoom; optional **follow** fields (`followPlotId`, `followWeight`, limits, lead bias, draw ramp).
-  - `**plot2d`**: **function**, **implicit** (`F(x,y)=0`), or **parametric** definition, `initialDraw`, line width, link to a camera id.
+  - `**camera2d`**: initial pan/zoom; optional **follow\*\* fields (`followPlotId`, `followWeight`, limits, lead bias, draw ramp).
+  - `**plot2d`**: **function**, **implicit** (`F(x,y)=0`), or **parametric\*\* definition, `initialDraw`, line width, link to a camera id.
   - `**equation**`: decorative text strip (e.g. LaTeX-like label); opacity/position can be keyed over time.
 - **Timeline**
-  - `**duration`**, `**fps**`
+  - `**duration`**, `**fps\*\*`
   - `**tracks**`: list of `**PropertyTrack**` items, each targeting a string path such as `main-plot.draw` or `main-cam.halfWidth`, with time **keyframes** and optional **easing** on the leading key of each segment.
 
 Multiple tracks with the same **target** are merged by time; duplicate times keep the **last** keyframe.
@@ -185,4 +183,4 @@ This repository does not ship a default `LICENSE` file in the described tree; ad
 
 ## Package name
 
-The npm package is `**eq-visualiser`** (see `package.json`).
+The npm package is `**eq-visualiser`\*\* (see `package.json`).
