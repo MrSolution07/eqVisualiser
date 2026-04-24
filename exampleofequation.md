@@ -39,11 +39,9 @@ On any **finite** `[xMin, xMax]` the curve is clipped. For a *feeling* of infini
 Not `y = f(x)`—these use **x** and **y** in one expression. In this project, use a **top-level** `=` so the engine builds **F = left − right** (see README). Use explicit `*` for multiplication in mathjs.
 
 - **Lemniscate of Bernoulli** (figure‑eight, scaled):
-
   \[
   (x^2 + y^2)^2 = 50\,(x^2 - y^2)
   \]
-
   **Typed for the app:** `(x^2 + y^2)^2 = 50*(x^2 - y^2)`  
   (Same equation; the `50` sets overall size. Widen the implicit window in the scene if the loop is cropped.)
 
@@ -58,4 +56,6 @@ Short list that tends to look good in cinematic plots:
 - `1/(1 + x^2)`
 - `exp(-x) * sin(3*x)`
 - **Implicit:** `(x^2 + y^2)^2 = 50*(x^2 - y^2)` (lemniscate; see *Implicit curves* above)
+- should be updated 
+- 
 
