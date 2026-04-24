@@ -14,7 +14,7 @@ Turn formulas into time-driven shots—progressive draws, eased camera moves, pe
 
 ## Why this exists
 
-Static plots answer “what does it look like?” **EQ Visualiser** answers “how should we *see* it unfold?” The UI is built around **scrubbing**, **playback**, and a **timeline**: you compose motion on the curve and the virtual 2D camera, then **export** (typically WebM via `MediaRecorder`) from the same render pipeline as the preview.
+Static plots answer “what does it look like?” **EQ Visualiser** answers “how should we _see_ it unfold?” The UI is built around **scrubbing**, **playback**, and a **timeline**: you compose motion on the curve and the virtual 2D camera, then **export** (typically WebM via `MediaRecorder`) from the same render pipeline as the preview.
 
 Today the focus is **2D**: explicit functions, implicit curves $F(x,y)=0$, and parametric paths in the engine—driven by [mathjs](https://mathjs.org/) with a strict, browser-safe evaluation surface.
 
@@ -22,12 +22,12 @@ Today the focus is **2D**: explicit functions, implicit curves $F(x,y)=0$, and p
 
 ## Features
 
-| | |
-| --- | --- |
-| **Edit** | One expression in the sidebar; the app classifies it and updates the main `plot2d` layer **without** wiping your custom timeline tracks. |
-| **Play** | Global time `t`, scrubber, play/pause—inspect any frame of the composition. |
+|            |                                                                                                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Edit**   | One expression in the sidebar; the app classifies it and updates the main `plot2d` layer **without** wiping your custom timeline tracks.                |
+| **Play**   | Global time `t`, scrubber, play/pause—inspect any frame of the composition.                                                                             |
 | **Direct** | Progressive **arc-length** reveal (`draw`), keyframed **camera** (`centerX`, `centerY`, `halfWidth`), **cubic Bézier** easing, optional **tip follow**. |
-| **Ship** | **WebGL 2** line rendering, grid/axes in world space, **export video** aligned to project duration and fps. |
+| **Ship**   | **WebGL 2** line rendering, grid/axes in world space, **export video** aligned to project duration and fps.                                             |
 
 <details>
 <summary><strong>Expression modes</strong> (click to expand)</summary>
@@ -78,17 +78,17 @@ Open the URL Vite prints (often `http://localhost:5173`). Edit the expression, *
 
 ### Scripts
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Vite dev server (with `--host`) |
-| `npm run build` | Typecheck and production bundle |
-| `npm run preview` | Serve the production build |
-| `npm test` | Vitest (non-interactive) |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | ESLint |
-| `npm run lint:fix` | ESLint with `--fix` |
-| `npm run format` | Prettier (write) |
-| `npm run format:check` | Prettier (check) |
+| Command                | Purpose                         |
+| ---------------------- | ------------------------------- |
+| `npm run dev`          | Vite dev server (with `--host`) |
+| `npm run build`        | Typecheck and production bundle |
+| `npm run preview`      | Serve the production build      |
+| `npm test`             | Vitest (non-interactive)        |
+| `npm run typecheck`    | `tsc --noEmit`                  |
+| `npm run lint`         | ESLint                          |
+| `npm run lint:fix`     | ESLint with `--fix`             |
+| `npm run format`       | Prettier (write)                |
+| `npm run format:check` | Prettier (check)                |
 
 **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
