@@ -1,4 +1,4 @@
-<div align="center">
+
 
 # Equation Visualiser
 
@@ -8,19 +8,20 @@ Turn formulas into time-driven shots—progressive draws, eased camera moves, pe
 
 [Quick start](#quick-start) · [Features](#features) · [Roadmap](#roadmap)
 
-</div>
+
 
 ---
 
 ## Why this exists
 
-Static plots answer “what does it look like?” **EQ Visualiser** answers “how should we _see_ it unfold?” The UI is built around **scrubbing**, **playback**, and a **timeline**: you compose motion on the curve and the virtual 2D camera, then **export** (typically WebM via `MediaRecorder`) from the same render pipeline as the preview.
+Static plots answer “what does it look like?” **EQ Visualiser** answers “how should we *see* it unfold?” The UI is built around **scrubbing**, **playback**, and a **timeline**: you compose motion on the curve and the virtual 2D camera, then **export** (typically WebM via `MediaRecorder`) from the same render pipeline as the preview.
 
 Today the focus is **2D**: explicit functions, implicit curves $F(x,y)=0$, and parametric paths in the engine—driven by [mathjs](https://mathjs.org/) with a strict, browser-safe evaluation surface.
 
 ---
 
 ## Features
+
 
 |            |                                                                                                                                                         |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -29,33 +30,31 @@ Today the focus is **2D**: explicit functions, implicit curves $F(x,y)=0$, and p
 | **Direct** | Progressive **arc-length** reveal (`draw`), keyframed **camera** (`centerX`, `centerY`, `halfWidth`), **cubic Bézier** easing, optional **tip follow**. |
 | **Ship**   | **WebGL 2** line rendering, grid/axes in world space, **export video** aligned to project duration and fps.                                             |
 
-<details>
-<summary><strong>Expression modes</strong> (click to expand)</summary>
+
+**Expression modes** (click to expand)
 
 - **Explicit** `y = f(x)` (or `f(x)=…`): `x` is the independent variable; `t` may alias `x` on function plots.
 - **Implicit** `F(x,y)=0`: use a top-level `=`, e.g. `x^2 + y^2 = 25`. **Marching squares** on a 2D window; the **largest** contour is used so arc-length draw and camera follow stay well-defined.
 - **Constants** (no variables) collapse to a horizontal line over the plot’s x-range.
 - **Apply** commits the expression. **Reset story** reapplies the built-in cinematic storyboard after big formula changes.
 
-</details>
 
-<details>
-<summary><strong>Cinematic details</strong></summary>
+
+**Cinematic details**
 
 - **Progressive draw**: stroke visibility follows normalized progress along **arc length** of the sampled polyline—not a whole-curve fade.
 - **Periodic-aware sampling**: for many trig-heavy expressions, a heuristic estimates period and extends sampling so pans and zoom-outs still read as a continuous wave, without an empty opening frame.
 - **Timeline-union sampling**: bounds are fixed over the shot so `draw` does not reshuffle every frame. Implicit plots use a fixed **16∶9** preview aspect for vertical extent when the engine has no live canvas size.
 
-</details>
 
-<details>
-<summary><strong>Requirements</strong></summary>
+
+**Requirements**
 
 - **Node.js** 20+ (see `package.json` `engines`) for install and build.
 - A **modern browser** with **WebGL 2**.
 - **Video export** needs `canvas.captureStream` and a supported **MediaRecorder** MIME type (often WebM).
 
-</details>
+
 
 ---
 
@@ -78,6 +77,7 @@ Open the URL Vite prints (often `http://localhost:5173`). Edit the expression, *
 
 ### Scripts
 
+
 | Command                | Purpose                         |
 | ---------------------- | ------------------------------- |
 | `npm run dev`          | Vite dev server (with `--host`) |
@@ -89,6 +89,7 @@ Open the URL Vite prints (often `http://localhost:5173`). Edit the expression, *
 | `npm run lint:fix`     | ESLint with `--fix`             |
 | `npm run format`       | Prettier (write)                |
 | `npm run format:check` | Prettier (check)                |
+
 
 **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
@@ -123,8 +124,7 @@ Unsupported: user-defined functions, assignment blocks, arbitrary identifiers, a
 
 ---
 
-<details>
-<summary><strong>Architecture</strong> (file map)</summary>
+**Architecture** (file map)
 
 ```
 src/
@@ -161,24 +161,23 @@ src/
 
 **Data flow:** the **timeline** animates numeric properties on **scene nodes**; `evaluateAtTime` samples plots (envelope-aware bounds), resolves cameras (including follow), and returns `RenderStateV1` for `Plot2DWebGL`.
 
-</details>
 
-<details>
-<summary><strong>Project model (v1)</strong></summary>
 
-Built around **`ProjectFileV1`** (`src/core/ir.ts`):
+**Project model (v1)**
+
+Built around `**ProjectFileV1`** (`src/core/ir.ts`):
 
 - **Scene nodes**
-  - **`camera2d`**: pan/zoom; optional follow (`followPlotId`, `followWeight`, limits, lead bias, draw ramp).
-  - **`plot2d`**: function, implicit, or parametric definition; `initialDraw`, line width, camera link.
-  - **`equation`**: decorative text strip; opacity/position can be keyed over time.
+  - `**camera2d`**: pan/zoom; optional follow (`followPlotId`, `followWeight`, limits, lead bias, draw ramp).
+  - `**plot2d**`: function, implicit, or parametric definition; `initialDraw`, line width, camera link.
+  - `**equation**`: decorative text strip; opacity/position can be keyed over time.
 - **Timeline**
   - `duration`, `fps`
-  - **`tracks`**: `PropertyTrack` items targeting paths like `main-plot.draw` or `main-cam.halfWidth`, with keyframes and optional easing per segment.
+  - `**tracks`**: `PropertyTrack` items targeting paths like `main-plot.draw` or `main-cam.halfWidth`, with keyframes and optional easing per segment.
 
 Multiple tracks on the same **target** merge by time; duplicate times keep the **last** keyframe.
 
-</details>
+
 
 ---
 
@@ -209,3 +208,5 @@ No default `LICENSE` is shipped; add one if you intend to distribute or open-sou
 ---
 
 **Package:** `eq-visualiser` (`package.json`).
+
+well still cooking...
